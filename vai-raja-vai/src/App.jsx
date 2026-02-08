@@ -54,10 +54,19 @@ export default function App() {
   const playerStats = useGameStore((s) => s.playerStats);
   const vaiRajaVaiCooldownEnd = useGameStore((s) => s.vaiRajaVaiCooldownEnd);
 
+  const globalSuspicion = useGameStore((s) => {
+    if (!s.wives || s.wives.length === 0) return 0;
+    const total = s.wives.reduce((sum, w) => sum + (w.suspicion || 0), 0);
+    return Math.round(total / s.wives.length);
+  });
+  const vrvAvailable = useGameStore((s) => {
+    if (!s.vaiRajaVaiCooldownEnd) return true;
+    return Date.now() >= s.vaiRajaVaiCooldownEnd;
+  });
+
   const startNewGame = useGameStore((s) => s.startNewGame);
   const loadGame = useGameStore((s) => s.loadGame);
   const hasSaveGame = useGameStore((s) => s.hasSaveGame);
-  const getGlobalSuspicion = useGameStore((s) => s.getGlobalSuspicion);
   const syncFriends = useGameStore((s) => s.syncFriends);
   const setVaiRajaVaiCooldown = useGameStore((s) => s.setVaiRajaVaiCooldown);
   const isVaiRajaVaiAvailable = useGameStore((s) => s.isVaiRajaVaiAvailable);
@@ -66,7 +75,13 @@ export default function App() {
 
   const [vrvCooldown, setVrvCooldown] = useState(0);
   const [leakageFlash, setLeakageFlash] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
   const cooldownRef = useRef(null);
+
+  // Check for saved game on mount
+  useEffect(() => {
+    setHasSaved(hasSaveGame());
+  }, [hasSaveGame]);
 
   // VRV cooldown timer
   useEffect(() => {
@@ -125,7 +140,6 @@ export default function App() {
     [useEvidence, saveGame]
   );
 
-  const globalSuspicion = getGlobalSuspicion();
   const mappedInventory = mapInventoryForUI(inventory);
 
   // Title Screen
@@ -134,18 +148,26 @@ export default function App() {
       <TitleScreen
         onNewGame={handleNewGame}
         onContinue={handleContinue}
-        hasSavedGame={hasSaveGame()}
+        hasSavedGame={hasSaved}
       />
     );
   }
 
   // Ending Screen
   if (currentScene === 'ENDING' && ending) {
+    const endingStats = {
+      liesTotal: useGameStore.getState().factLedger?.length || 0,
+      suspicionPeak: Math.max(...(wives.map((w) => w.suspicion) || [0])),
+      contradictions: playerStats.doubleDownCount + playerStats.diversionCount,
+      technicalityCount: playerStats.technicalityCount,
+      confidence: playerStats.confidence,
+    };
+
     return (
       <EndingScreen
         ending={ENDING_MAP[ending] || ending}
         onPlayAgain={handlePlayAgain}
-        stats={playerStats}
+        stats={endingStats}
         technicalities={[
           "Temple Run, not Temple!",
           "The pub inside the temple",
@@ -182,7 +204,7 @@ export default function App() {
         onUseItem={handleUseItem}
         onVaiRajaVai={handleVaiRajaVai}
         vaiRajaVaiCooldown={vrvCooldown}
-        isVaiRajaVaiAvailable={isVaiRajaVaiAvailable()}
+        isVaiRajaVaiAvailable={vrvAvailable}
       >
         <SceneManager />
       </GameLayout>

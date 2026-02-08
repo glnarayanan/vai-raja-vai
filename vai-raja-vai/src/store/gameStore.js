@@ -7,6 +7,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 const GAME_VERSION = "1.0.0";
 const SAVE_KEY = "vai-raja-vai-save";
+const MANUAL_SAVE_KEY = "vai-raja-vai-manual-save";
 const VAI_RAJA_VAI_COOLDOWN_MS = 60_000;
 const SYNC_LEAKAGE_RISK = 0.1; // 10%
 const SYNC_LEAKAGE_SUSPICION = 20;
@@ -760,7 +761,7 @@ const useGameStore = create(
             evidenceTossFailed: state.evidenceTossFailed,
           };
 
-          localStorage.setItem(SAVE_KEY, JSON.stringify(serializable));
+          localStorage.setItem(MANUAL_SAVE_KEY, JSON.stringify(serializable));
           return { success: true };
         } catch (error) {
           console.error("[gameStore] Save failed:", error);
@@ -773,7 +774,7 @@ const useGameStore = create(
       // =====================================================================
       loadGame: () => {
         try {
-          const raw = localStorage.getItem(SAVE_KEY);
+          const raw = localStorage.getItem(MANUAL_SAVE_KEY);
           if (!raw) {
             return { success: false, reason: "No save data found." };
           }
@@ -801,7 +802,7 @@ const useGameStore = create(
       // =====================================================================
       hasSaveGame: () => {
         try {
-          const raw = localStorage.getItem(SAVE_KEY);
+          const raw = localStorage.getItem(MANUAL_SAVE_KEY);
           if (!raw) return false;
           const parsed = JSON.parse(raw);
           return parsed.gameVersion === GAME_VERSION;
