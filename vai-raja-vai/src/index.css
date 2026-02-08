@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-kollywood-midnight: #1E1B4B;
+  --color-kollywood-saffron: #F59E0B;
+  --color-kollywood-teal: #14B8A6;
+  --color-kollywood-magenta: #D946EF;
+  --color-kollywood-lime: #BEF264;
+  --color-kollywood-deep: #0F0D2E;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--color-kollywood-midnight);
+  color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
