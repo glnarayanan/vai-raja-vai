@@ -20,7 +20,12 @@ const CONFRONTATION_DIALOGUES = [
           subject: 'Maggie Encounter',
           statement: "Don't know this woman",
           consistency_tags: ['people', 'associates'],
-          timestamp: '21:00',
+          toldTo: 'wife_mythili',
+          topic: 'maggie_identity',
+          claim: 'do not know this woman',
+          timestamp: 'confrontation',
+          location: "Reddy's House",
+          immutable: false,
         },
         suspicionChange: 3,
         wifeId: 'wife_mythili',
@@ -34,7 +39,12 @@ const CONFRONTATION_DIALOGUES = [
           subject: 'Maggie Encounter',
           statement: 'Maggie is an old family friend',
           consistency_tags: ['people', 'associates'],
-          timestamp: '21:00',
+          toldTo: 'wife_mythili',
+          topic: 'maggie_identity',
+          claim: 'old family friend',
+          timestamp: 'confrontation',
+          location: "Reddy's House",
+          immutable: false,
         },
         suspicionChange: 10,
         wifeId: 'wife_mythili',
@@ -65,7 +75,12 @@ const CONFRONTATION_DIALOGUES = [
           subject: 'Maggie Identity',
           statement: "Reddy's relative at the party",
           consistency_tags: ['people', 'associates'],
-          timestamp: '21:00',
+          toldTo: 'wife_mythili',
+          topic: 'maggie_identity',
+          claim: "Reddy's relative",
+          timestamp: 'confrontation',
+          location: "Reddy's House",
+          immutable: false,
         },
         suspicionChange: 5,
         wifeId: 'wife_mythili',
@@ -79,7 +94,12 @@ const CONFRONTATION_DIALOGUES = [
           subject: 'Maggie Identity',
           statement: 'Work colleague from Bangalore project',
           consistency_tags: ['people', 'associates', 'location'],
-          timestamp: '21:00',
+          toldTo: 'wife_mythili',
+          topic: 'maggie_identity',
+          claim: 'work colleague from Bangalore',
+          timestamp: 'confrontation',
+          location: "Reddy's House",
+          immutable: false,
         },
         suspicionChange: 12,
         wifeId: 'wife_mythili',
@@ -110,7 +130,12 @@ const CONFRONTATION_DIALOGUES = [
           subject: 'Diamond Reference',
           statement: "Don't know what Maragadham is",
           consistency_tags: ['items', 'knowledge'],
-          timestamp: '21:30',
+          toldTo: 'wife_mythili',
+          topic: 'diamonds',
+          claim: 'do not know what Maragadham is',
+          timestamp: 'confrontation',
+          location: "Reddy's House",
+          immutable: false,
         },
         suspicionChange: 5,
         wifeId: 'wife_mythili',
@@ -134,7 +159,12 @@ const CONFRONTATION_DIALOGUES = [
           subject: 'Maggie Status',
           statement: 'Maggie is drunk and confused',
           consistency_tags: ['people'],
-          timestamp: '21:30',
+          toldTo: 'wife_mythili',
+          topic: 'maggie_identity',
+          claim: 'maggie is drunk and confused',
+          timestamp: 'confrontation',
+          location: "Reddy's House",
+          immutable: false,
         },
         suspicionChange: 7,
         wifeId: 'wife_mythili',
@@ -165,7 +195,12 @@ const CONFRONTATION_DIALOGUES = [
           subject: 'Truth Admission',
           statement: 'Went out and had fun, nothing else',
           consistency_tags: ['activity'],
-          timestamp: '10:00',
+          toldTo: 'wife_mythili',
+          topic: 'bangalore_activity',
+          claim: 'went out and had fun nothing else',
+          timestamp: 'bangalore_trip',
+          location: 'Bangalore',
+          immutable: false,
         },
         suspicionChange: 12,
         wifeId: 'wife_mythili',
@@ -194,10 +229,12 @@ export default function TheConfrontation() {
   const updateWifeSuspicion = useGameStore((s) => s.updateWifeSuspicion);
   const transitionScene = useGameStore((s) => s.transitionScene);
   const validateConsistency = useGameStore((s) => s.validateConsistency);
+  const resolveRecovery = useGameStore((s) => s.resolveRecovery);
   const saveGame = useGameStore((s) => s.saveGame);
   const getGlobalSuspicion = useGameStore((s) => s.getGlobalSuspicion);
   const diamondDiscovered = useGameStore((s) => s.diamondDiscovered);
   const triggerEnding = useGameStore((s) => s.triggerEnding);
+  const wives = useGameStore((s) => s.wives);
 
   const currentDialogue = CONFRONTATION_DIALOGUES.find((d) => d.id === currentDialogueId);
 
@@ -211,21 +248,18 @@ export default function TheConfrontation() {
 
       if (response.fact) {
         const newFact = {
-          id: `fact_confront_${Date.now()}`,
           ...response.fact,
-          witnesses: [response.wifeId || 'wife_mythili'],
-          location: "Reddy's House - Party",
-          immutable: false,
-          created_at: Date.now(),
         };
 
         addFact(newFact);
 
         const validation = validateConsistency(newFact);
         if (validation && validation.hasCollision) {
+          const wifeId = response.wifeId || 'wife_mythili';
+          const wife = wives.find((w) => w.id === wifeId) || wives[0];
           setRecoveryData({
             collision: validation,
-            wifeId: response.wifeId || 'wife_mythili',
+            wife,
           });
           setShowRecovery(true);
           saveGame();
@@ -244,9 +278,12 @@ export default function TheConfrontation() {
         setIsTransitioning(true);
         setTimeout(() => {
           if (globalSusp >= 85) {
+            // Extreme suspicion — skip to riverbed finale
             transitionScene('RIVERBED_FINALE');
           } else {
-            transitionScene('RIVERBED_FINALE');
+            // Normal scene completion — determine ending based on game state
+            const ending = useGameStore.getState().determineEnding();
+            triggerEnding(ending);
           }
         }, 1000);
         return;
@@ -268,11 +305,16 @@ export default function TheConfrontation() {
       saveGame,
       getGlobalSuspicion,
       triggerEnding,
+      wives,
     ]
   );
 
   const handleRecoveryResolve = useCallback(
-    (option) => {
+    (optionId) => {
+      // Call the store's resolveRecovery with SCREAMING_SNAKE_CASE option
+      const optionMap = { 'technicality': 'TECHNICALITY', 'double-down': 'DOUBLE_DOWN', 'diversion': 'DIVERSION' };
+      resolveRecovery(optionMap[optionId] || optionId);
+
       setShowRecovery(false);
       setRecoveryData(null);
 
@@ -285,7 +327,7 @@ export default function TheConfrontation() {
         }, 500);
       }
     },
-    [currentDialogueId]
+    [currentDialogueId, resolveRecovery]
   );
 
   const handleRecoveryTimeout = useCallback(() => {
@@ -357,7 +399,7 @@ export default function TheConfrontation() {
         {showRecovery && recoveryData && (
           <RecoveryMode
             collision={recoveryData.collision}
-            wifeId={recoveryData.wifeId}
+            wife={recoveryData.wife}
             onResolve={handleRecoveryResolve}
             onTimeout={handleRecoveryTimeout}
           />

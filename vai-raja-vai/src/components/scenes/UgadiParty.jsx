@@ -21,7 +21,12 @@ const PARTY_DIALOGUES = [
           subject: 'Bangalore Trip',
           statement: 'Temples, food, early nights',
           consistency_tags: ['activity', 'time'],
-          timestamp: '10:00',
+          toldTo: 'wife_mythili',
+          topic: 'bangalore_activity',
+          claim: 'temples food and early nights',
+          timestamp: 'bangalore_trip',
+          location: 'Bangalore',
+          immutable: false,
         },
         suspicionChange: 2,
         wifeId: 'wife_mythili',
@@ -35,7 +40,12 @@ const PARTY_DIALOGUES = [
           subject: 'Bangalore Trip',
           statement: 'Fun trip, great food and weather',
           consistency_tags: ['activity'],
-          timestamp: '10:00',
+          toldTo: 'wife_mythili',
+          topic: 'bangalore_activity',
+          claim: 'fun trip with great food',
+          timestamp: 'bangalore_trip',
+          location: 'Bangalore',
+          immutable: false,
         },
         suspicionChange: 5,
         wifeId: 'wife_mythili',
@@ -68,7 +78,12 @@ const PARTY_DIALOGUES = [
           subject: 'Accommodation',
           statement: 'Nice lobby but basic rooms',
           consistency_tags: ['location', 'accommodation'],
-          timestamp: '20:00',
+          toldTo: 'wife_alice',
+          topic: 'accommodation',
+          claim: 'nice lobby but basic rooms',
+          timestamp: 'bangalore_accommodation',
+          location: 'Bangalore Hotel',
+          immutable: false,
         },
         suspicionChange: 3,
         wifeId: 'wife_alice',
@@ -82,7 +97,12 @@ const PARTY_DIALOGUES = [
           subject: 'Accommodation',
           statement: 'Changed hotels on day 2',
           consistency_tags: ['location', 'accommodation', 'time'],
-          timestamp: '20:00',
+          toldTo: 'wife_alice',
+          topic: 'accommodation',
+          claim: 'changed hotels on day two',
+          timestamp: 'bangalore_accommodation',
+          location: 'Bangalore Second Hotel',
+          immutable: false,
         },
         suspicionChange: 8,
         wifeId: 'wife_alice',
@@ -113,7 +133,12 @@ const PARTY_DIALOGUES = [
           subject: 'Maggi Reference',
           statement: 'Maggi is noodles, Reddy loves snacks',
           consistency_tags: ['people', 'associates'],
-          timestamp: '16:00',
+          toldTo: 'wife_priya',
+          topic: 'maggie_identity',
+          claim: 'maggi means noodles',
+          timestamp: 'bangalore_trip',
+          location: 'Bangalore',
+          immutable: false,
         },
         suspicionChange: 2,
         wifeId: 'wife_priya',
@@ -127,7 +152,12 @@ const PARTY_DIALOGUES = [
           subject: 'Maggi Reference',
           statement: "Maggi's Kitchen restaurant",
           consistency_tags: ['location', 'people'],
-          timestamp: '16:00',
+          toldTo: 'wife_priya',
+          topic: 'maggie_identity',
+          claim: "maggi is a restaurant name",
+          timestamp: 'bangalore_trip',
+          location: "Maggi's Kitchen",
+          immutable: false,
         },
         suspicionChange: 6,
         wifeId: 'wife_priya',
@@ -160,7 +190,12 @@ const PARTY_DIALOGUES = [
           subject: 'Nighttime Activities',
           statement: 'Vedham had stomachache, others slept',
           consistency_tags: ['time', 'activity', 'associates'],
-          timestamp: '22:00',
+          toldTo: 'wife_deepa',
+          topic: 'nighttime_activity',
+          claim: 'everyone slept except Vedham stomachache',
+          timestamp: 'bangalore_night1',
+          location: 'Bangalore Hotel',
+          immutable: false,
         },
         suspicionChange: 3,
         wifeId: 'wife_deepa',
@@ -174,7 +209,12 @@ const PARTY_DIALOGUES = [
           subject: 'Nighttime Activities',
           statement: 'Watched late movie, fell asleep',
           consistency_tags: ['time', 'activity'],
-          timestamp: '22:00',
+          toldTo: 'wife_deepa',
+          topic: 'nighttime_activity',
+          claim: 'watched a late movie',
+          timestamp: 'bangalore_night1',
+          location: 'Bangalore Hotel',
+          immutable: false,
         },
         suspicionChange: 7,
         wifeId: 'wife_deepa',
@@ -205,7 +245,12 @@ const PARTY_DIALOGUES = [
           subject: 'Paradise Receipt',
           statement: 'Paradise is a vegetarian restaurant chain',
           consistency_tags: ['location', 'activity'],
-          timestamp: '13:00',
+          toldTo: 'wife_lakshmi',
+          topic: 'paradise_visit',
+          claim: 'paradise is a vegetarian restaurant',
+          timestamp: 'bangalore_day2',
+          location: 'Bangalore Paradise Restaurant',
+          immutable: false,
         },
         suspicionChange: 3,
         wifeId: 'wife_lakshmi',
@@ -219,7 +264,12 @@ const PARTY_DIALOGUES = [
           subject: 'Paradise Receipt',
           statement: 'Receipt is from previous trip',
           consistency_tags: ['location', 'time'],
-          timestamp: '13:00',
+          toldTo: 'wife_lakshmi',
+          topic: 'paradise_visit',
+          claim: 'receipt is from a previous trip',
+          timestamp: 'bangalore_day2',
+          location: 'Bangalore',
+          immutable: false,
         },
         suspicionChange: 5,
         wifeId: 'wife_lakshmi',
@@ -261,7 +311,12 @@ const PARTY_DIALOGUES = [
           subject: 'Trip Summary',
           statement: 'Simple Bangalore trip, nothing more',
           consistency_tags: ['activity'],
-          timestamp: '10:00',
+          toldTo: 'wife_mythili',
+          topic: 'bangalore_activity',
+          claim: 'simple trip nothing more',
+          timestamp: 'bangalore_trip',
+          location: 'Bangalore',
+          immutable: false,
         },
         suspicionChange: 8,
         wifeId: 'wife_mythili',
@@ -300,8 +355,10 @@ export default function UgadiParty() {
   const factLedger = useGameStore((s) => s.factLedger);
   const validateConsistency = useGameStore((s) => s.validateConsistency);
   const triggerRecoveryMode = useGameStore((s) => s.triggerRecoveryMode);
+  const resolveRecovery = useGameStore((s) => s.resolveRecovery);
   const saveGame = useGameStore((s) => s.saveGame);
   const getGlobalSuspicion = useGameStore((s) => s.getGlobalSuspicion);
+  const foundPhotoRef = useRef(false);
 
   // Alcohol timer - increment every 30 seconds (game time accelerated)
   useEffect(() => {
@@ -314,14 +371,21 @@ export default function UgadiParty() {
     return () => clearInterval(alcoholTimerRef.current);
   }, [incrementAlcohol]);
 
+  // Keep foundPhotoRef in sync with foundPhoto state
+  useEffect(() => {
+    foundPhotoRef.current = foundPhoto;
+  }, [foundPhoto]);
+
   // Photo discovery timer
   useEffect(() => {
     if (foundPhoto) return;
 
     const tryFindPhoto = () => {
+      if (foundPhotoRef.current) return;
       if (Math.random() < 0.6) {
         acquireEvidence('item_photo');
         setFoundPhoto(true);
+        foundPhotoRef.current = true;
         clearTimeout(photoTimerRef.current);
       }
     };
@@ -329,10 +393,13 @@ export default function UgadiParty() {
     // Try at 30 seconds, guaranteed at 60 seconds
     photoTimerRef.current = setTimeout(() => {
       tryFindPhoto();
-      if (!foundPhoto) {
+      if (!foundPhotoRef.current) {
         photoTimerRef.current = setTimeout(() => {
-          acquireEvidence('item_photo');
-          setFoundPhoto(true);
+          if (!foundPhotoRef.current) {
+            acquireEvidence('item_photo');
+            setFoundPhoto(true);
+            foundPhotoRef.current = true;
+          }
         }, 30000);
       }
     }, 30000);
@@ -374,12 +441,7 @@ export default function UgadiParty() {
 
       if (response.fact) {
         const newFact = {
-          id: `fact_party_${Date.now()}`,
           ...response.fact,
-          witnesses: [response.wifeId || 'wife_mythili'],
-          location: "Reddy's House - Party",
-          immutable: false,
-          created_at: Date.now(),
         };
 
         addFact(newFact);
@@ -387,9 +449,11 @@ export default function UgadiParty() {
         // Check consistency
         const validation = validateConsistency(newFact);
         if (validation && validation.hasCollision) {
+          const wifeId = response.wifeId || 'wife_mythili';
+          const wife = wives.find((w) => w.id === wifeId) || wives[0];
           setRecoveryData({
             collision: validation,
-            wifeId: response.wifeId || 'wife_mythili',
+            wife,
           });
           setShowRecovery(true);
           saveGame();
@@ -410,6 +474,8 @@ export default function UgadiParty() {
           // Trigger recovery after showing the blurt
           setTimeout(() => {
             setBlurtMessage(null);
+            const blurtWifeId = response.wifeId || 'wife_mythili';
+            const blurtWife = wives.find((w) => w.id === blurtWifeId) || wives[0];
             setRecoveryData({
               collision: {
                 hasCollision: true,
@@ -417,7 +483,7 @@ export default function UgadiParty() {
                 blurt: blurtResult.blurt,
                 friend: blurtResult.friend.name,
               },
-              wifeId: response.wifeId || 'wife_mythili',
+              wife: blurtWife,
             });
             setShowRecovery(true);
           }, 2000);
@@ -455,11 +521,16 @@ export default function UgadiParty() {
       validateConsistency,
       saveGame,
       getGlobalSuspicion,
+      wives,
     ]
   );
 
   const handleRecoveryResolve = useCallback(
-    (option) => {
+    (optionId) => {
+      // Call the store's resolveRecovery with SCREAMING_SNAKE_CASE option
+      const optionMap = { 'technicality': 'TECHNICALITY', 'double-down': 'DOUBLE_DOWN', 'diversion': 'DIVERSION' };
+      resolveRecovery(optionMap[optionId] || optionId);
+
       setShowRecovery(false);
       setRecoveryData(null);
 
@@ -474,19 +545,23 @@ export default function UgadiParty() {
         }, 500);
       }
     },
-    [currentDialogueId]
+    [currentDialogueId, resolveRecovery]
   );
 
   const handleRecoveryTimeout = useCallback(() => {
+    // Use getState() to avoid stale closure over recoveryData
+    const currentRecoveryData = useGameStore.getState().recoveryMode;
+    const wifeId = currentRecoveryData?.wife || 'wife_mythili';
+
     setShowRecovery(false);
     setRecoveryData(null);
-    updateWifeSuspicion(recoveryData?.wifeId || 'wife_mythili', 20);
+    updateWifeSuspicion(wifeId, 20);
 
     const globalSusp = getGlobalSuspicion();
     if (globalSusp >= 85) {
       transitionScene('RIVERBED_FINALE');
     }
-  }, [recoveryData, updateWifeSuspicion, getGlobalSuspicion, transitionScene]);
+  }, [updateWifeSuspicion, getGlobalSuspicion, transitionScene]);
 
   const currentDialogue = PARTY_DIALOGUES.find((d) => d.id === currentDialogueId);
 
@@ -569,7 +644,7 @@ export default function UgadiParty() {
         {showRecovery && recoveryData && (
           <RecoveryMode
             collision={recoveryData.collision}
-            wifeId={recoveryData.wifeId}
+            wife={recoveryData.wife}
             onResolve={handleRecoveryResolve}
             onTimeout={handleRecoveryTimeout}
           />

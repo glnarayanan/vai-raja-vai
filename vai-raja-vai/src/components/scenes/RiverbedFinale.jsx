@@ -15,7 +15,17 @@ const FINALE_DIALOGUES = [
         id: 'f1_safe',
         text: "Diamonds? We don't have any diamonds. You've got the wrong group of men.",
         type: 'safe',
-        fact: null,
+        fact: {
+          subject: 'Diamond Possession',
+          statement: 'Denied having any diamonds',
+          consistency_tags: ['items', 'knowledge'],
+          toldTo: 'wife_mythili',
+          topic: 'diamonds',
+          claim: 'do not have any diamonds',
+          timestamp: 'riverbed_finale',
+          location: 'Dry Riverbed',
+          immutable: false,
+        },
         suspicionChange: 0,
         nextDialogue: 'finale_2',
       },
@@ -23,7 +33,17 @@ const FINALE_DIALOGUES = [
         id: 'f1_risky',
         text: "Maybe we do, maybe we don't. What's it worth to you?",
         type: 'risky',
-        fact: null,
+        fact: {
+          subject: 'Diamond Possession',
+          statement: 'Implied having the diamonds',
+          consistency_tags: ['items', 'knowledge'],
+          toldTo: 'wife_mythili',
+          topic: 'diamonds',
+          claim: 'might have the diamonds',
+          timestamp: 'riverbed_finale',
+          location: 'Dry Riverbed',
+          immutable: false,
+        },
         suspicionChange: 5,
         nextDialogue: 'finale_2',
       },
@@ -47,7 +67,17 @@ const FINALE_DIALOGUES = [
         id: 'f2_safe',
         text: "Inspector! Thank God you're here! This smuggler was threatening us!",
         type: 'safe',
-        fact: null,
+        fact: {
+          subject: 'Inspector Encounter',
+          statement: 'Cooperated with inspector immediately',
+          consistency_tags: ['authority'],
+          toldTo: 'wife_mythili',
+          topic: 'bangalore_reason',
+          claim: 'we were being threatened by smuggler',
+          timestamp: 'riverbed_finale',
+          location: 'Dry Riverbed',
+          immutable: false,
+        },
         suspicionChange: -5,
         nextDialogue: 'finale_3',
       },
@@ -55,7 +85,17 @@ const FINALE_DIALOGUES = [
         id: 'f2_risky',
         text: "We can explain everything, Inspector. It's not what it looks like.",
         type: 'risky',
-        fact: null,
+        fact: {
+          subject: 'Inspector Encounter',
+          statement: 'Offered to explain, admitted it looks bad',
+          consistency_tags: ['authority'],
+          toldTo: 'wife_mythili',
+          topic: 'bangalore_reason',
+          claim: 'can explain everything',
+          timestamp: 'riverbed_finale',
+          location: 'Dry Riverbed',
+          immutable: false,
+        },
         suspicionChange: 3,
         nextDialogue: 'finale_3',
       },
@@ -63,7 +103,17 @@ const FINALE_DIALOGUES = [
         id: 'f2_deflect',
         text: "Inspector, with all due respect — we're just five friends who went to Bangalore. That's it.",
         type: 'deflect',
-        fact: null,
+        fact: {
+          subject: 'Inspector Encounter',
+          statement: 'Claimed to be just friends on a trip',
+          consistency_tags: ['activity'],
+          toldTo: 'wife_mythili',
+          topic: 'bangalore_reason',
+          claim: 'just five friends who went to Bangalore',
+          timestamp: 'riverbed_finale',
+          location: 'Dry Riverbed',
+          immutable: false,
+        },
         suspicionChange: 0,
         nextDialogue: 'finale_3',
       },
@@ -149,6 +199,7 @@ export default function RiverbedFinale() {
   const [currentDialogueId, setCurrentDialogueId] = useState('finale_1');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  const addFact = useGameStore((s) => s.addFact);
   const updateWifeSuspicion = useGameStore((s) => s.updateWifeSuspicion);
   const getGlobalSuspicion = useGameStore((s) => s.getGlobalSuspicion);
   const triggerEnding = useGameStore((s) => s.triggerEnding);
@@ -193,6 +244,10 @@ export default function RiverbedFinale() {
 
   const handleResponse = useCallback(
     (response) => {
+      if (response.fact) {
+        addFact({ ...response.fact });
+      }
+
       if (response.suspicionChange) {
         updateWifeSuspicion('wife_mythili', response.suspicionChange);
       }
@@ -225,7 +280,7 @@ export default function RiverbedFinale() {
         }, 500);
       }
     },
-    [updateWifeSuspicion, saveGame, handleEvidenceToss, handleSurrender, handleBluff]
+    [addFact, updateWifeSuspicion, saveGame, handleEvidenceToss, handleSurrender, handleBluff]
   );
 
   return (
