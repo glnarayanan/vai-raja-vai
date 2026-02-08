@@ -46,7 +46,8 @@ export default function FriendStatusPanel({ friends = [] }) {
 
       <div className="space-y-4">
         {friends.map((friend) => {
-          const syncStatus = getSyncStatusLabel(friend.isSynced);
+          const isSynced = friend.lastSyncedAt != null && (Date.now() - friend.lastSyncedAt) < 300000;
+          const syncStatus = getSyncStatusLabel(isSynced);
 
           return (
             <div key={friend.name} className="space-y-2">
@@ -54,7 +55,7 @@ export default function FriendStatusPanel({ friends = [] }) {
               <div className="flex items-center justify-between">
                 <span
                   className="text-sm font-semibold"
-                  style={{ color: friend.color || '#14B8A6' }}
+                  style={{ color: { OVER_EXPLAINER: '#3B82F6', NERVOUS: '#F59E0B', AGREEABLE: '#14B8A6', LOOSE_CANNON: '#EF4444' }[friend.failureStyle] || '#14B8A6' }}
                 >
                   {friend.name}
                 </span>
@@ -86,7 +87,7 @@ export default function FriendStatusPanel({ friends = [] }) {
               {/* Alcohol level */}
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-white/40">Alcohol</span>
-                <DrinkIcons level={friend.alcoholLevel ?? 0} />
+                <DrinkIcons level={friend.alcohol_level ?? 0} />
               </div>
 
               {/* Separator */}

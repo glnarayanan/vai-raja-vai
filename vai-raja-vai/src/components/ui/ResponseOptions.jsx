@@ -16,6 +16,11 @@ const TYPE_STYLES = {
     hover: 'hover:bg-kollywood-saffron/20 hover:border-kollywood-saffron/60',
     disabled: 'border-kollywood-saffron/10 bg-kollywood-saffron/5 text-kollywood-saffron/30',
   },
+  bold: {
+    base: 'border-kollywood-lime/60 bg-kollywood-lime/10 text-kollywood-lime',
+    hover: 'hover:bg-kollywood-lime/20 hover:border-kollywood-lime/80',
+    disabled: 'border-kollywood-lime/10 bg-kollywood-lime/5 text-kollywood-lime/30',
+  },
 };
 
 const containerVariants = {
@@ -76,7 +81,9 @@ export default function ResponseOptions({ options = [], onSelect }) {
                   ? 'Safe'
                   : option.type === 'risky'
                     ? 'Risky'
-                    : 'Deflect'}
+                    : option.type === 'bold'
+                      ? 'Bold'
+                      : 'Deflect'}
               </span>
               <span className={`h-px flex-1 ${isDisabled ? 'bg-white/5' : 'bg-white/10'}`} />
             </div>

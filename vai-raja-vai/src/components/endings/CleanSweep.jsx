@@ -33,7 +33,7 @@ const confettiColors = [
   '#F59E0B', '#14B8A6', '#D946EF', '#BEF264', '#FBBF24', '#34D399',
 ];
 
-const npcNames = ['Murugan', 'Priya', 'Senthil', 'Lakshmi', 'Ravi'];
+const npcNames = ['Mythili', 'Alice', 'Priya', 'Deepa', 'Lakshmi'];
 
 const paragraphs = [
   'Every thread held. Every lie interlocked like a Swiss watch designed by a madman.',

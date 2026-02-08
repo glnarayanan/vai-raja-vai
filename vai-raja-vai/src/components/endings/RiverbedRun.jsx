@@ -5,7 +5,7 @@ function RiverbedScene() {
     <svg viewBox="0 0 400 200" className="w-full max-w-lg" fill="none">
       {/* Sky gradient */}
       <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="riverbed-run-sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#0F0D2E" />
           <stop offset="60%" stopColor="#1E1B4B" />
           <stop offset="100%" stopColor="#2D2A5E" />
@@ -17,11 +17,11 @@ function RiverbedScene() {
       </defs>
 
       {/* Sky */}
-      <rect width="400" height="200" fill="url(#sky)" />
+      <rect width="400" height="200" fill="url(#riverbed-run-sky)" />
 
       {/* Moon */}
       <circle cx="320" cy="40" r="18" fill="white" fillOpacity="0.8" />
-      <circle cx="326" cy="36" r="16" fill="url(#sky)" />
+      <circle cx="326" cy="36" r="16" fill="url(#riverbed-run-sky)" />
 
       {/* Stars */}
       <circle cx="50" cy="25" r="1" fill="white" fillOpacity="0.6" />

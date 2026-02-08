@@ -30,8 +30,8 @@ export default function SocialHub({ wives = [], friends = [] }) {
                       name={wife.name}
                       color={wife.color}
                       suspicion={wife.suspicion}
-                      isSynced={wife.isSynced}
-                      isActive={wife.isActive}
+                      isSynced={true}
+                      isActive={wife.suspicion > 0}
                     />
                   </button>
                 ))}
@@ -51,22 +51,26 @@ export default function SocialHub({ wives = [], friends = [] }) {
                 Friends
               </span>
               <div className="flex gap-3">
-                {friends.map((friend) => (
-                  <button
-                    key={friend.name}
-                    className="cursor-pointer bg-transparent p-0"
-                    onClick={() => handleNpcClick(friend)}
-                  >
-                    <NpcAvatar
-                      name={friend.name}
-                      color={friend.color}
-                      reliability={friend.reliability}
-                      isSynced={friend.isSynced}
-                      alcoholLevel={friend.alcoholLevel}
-                      isActive={friend.isActive}
-                    />
-                  </button>
-                ))}
+                {friends.map((friend) => {
+                  const isSynced = friend.lastSyncedAt != null && (Date.now() - friend.lastSyncedAt) < 300000;
+                  const friendColor = { OVER_EXPLAINER: '#3B82F6', NERVOUS: '#F59E0B', AGREEABLE: '#14B8A6', LOOSE_CANNON: '#EF4444' }[friend.failureStyle] || '#14B8A6';
+                  return (
+                    <button
+                      key={friend.name}
+                      className="cursor-pointer bg-transparent p-0"
+                      onClick={() => handleNpcClick(friend)}
+                    >
+                      <NpcAvatar
+                        name={friend.name}
+                        color={friendColor}
+                        reliability={friend.reliability}
+                        isSynced={isSynced}
+                        alcoholLevel={friend.alcohol_level}
+                        isActive={isSynced}
+                      />
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -83,7 +87,7 @@ export default function SocialHub({ wives = [], friends = [] }) {
               transition={{ duration: 0.2 }}
             >
               <div className="flex items-center gap-3">
-                <span className="font-semibold" style={{ color: selectedNpc.color }}>
+                <span className="font-semibold" style={{ color: selectedNpc.color || { OVER_EXPLAINER: '#3B82F6', NERVOUS: '#F59E0B', AGREEABLE: '#14B8A6', LOOSE_CANNON: '#EF4444' }[selectedNpc.failureStyle] || '#14B8A6' }}>
                   {selectedNpc.name}
                 </span>
                 {selectedNpc.suspicion !== undefined && (
@@ -96,12 +100,12 @@ export default function SocialHub({ wives = [], friends = [] }) {
                     Reliability: {selectedNpc.reliability}%
                   </span>
                 )}
-                {!selectedNpc.isSynced && (
+                {selectedNpc.lastSyncedAt !== undefined && !(selectedNpc.lastSyncedAt != null && (Date.now() - selectedNpc.lastSyncedAt) < 300000) && (
                   <span className="text-xs font-medium text-orange-400">Un-synced</span>
                 )}
-                {selectedNpc.alcoholLevel > 0 && (
+                {selectedNpc.alcohol_level > 0 && (
                   <span className="text-xs text-white/50">
-                    Alcohol: {selectedNpc.alcoholLevel}/5
+                    Alcohol: {selectedNpc.alcohol_level}/5
                   </span>
                 )}
               </div>
