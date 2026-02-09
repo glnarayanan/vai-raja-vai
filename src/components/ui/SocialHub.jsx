@@ -4,9 +4,9 @@ import NpcAvatar from './NpcAvatar';
 
 const FRIEND_COLORS = {
   OVER_EXPLAINER: '#3B82F6',
-  NERVOUS: '#F59E0B',
-  AGREEABLE: '#14B8A6',
-  LOOSE_CANNON: '#EF4444',
+  NERVOUS: '#D97706',
+  AGREEABLE: '#0F766E',
+  LOOSE_CANNON: '#B91C1C',
 };
 
 export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
@@ -17,21 +17,21 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
   };
 
   return (
-    <div className="relative w-full border-b border-white/10 bg-kollywood-deep/60 backdrop-blur-sm">
+    <div className="relative w-full border-b border-ink-faint/30 bg-surface">
       <div className="mx-auto max-w-3xl px-4 py-3">
         <div className="flex gap-6">
           {/* Mythili */}
           <div className="flex shrink-0 items-start gap-1">
-            <span className="mr-2 mt-3 text-[10px] font-semibold uppercase tracking-widest text-kollywood-magenta/60">
+            <span className="mr-2 mt-3 text-[10px] font-semibold uppercase tracking-widest text-danger/60">
               Wife
             </span>
             <button
               className="cursor-pointer bg-transparent p-0"
-              onClick={() => handleNpcClick({ name: 'Mythili', suspicion: mythiliSuspicion, color: '#D946EF' })}
+              onClick={() => handleNpcClick({ name: 'Mythili', suspicion: mythiliSuspicion, color: '#B91C1C' })}
             >
               <NpcAvatar
                 name="Mythili"
-                color="#D946EF"
+                color="#B91C1C"
                 suspicion={mythiliSuspicion}
                 isActive={mythiliSuspicion > 0}
               />
@@ -40,13 +40,13 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
 
           {/* Separator */}
           {friends.length > 0 && (
-            <div className="mx-1 mt-2 w-px self-stretch bg-white/10" />
+            <div className="mx-1 mt-2 w-px self-stretch bg-ink-faint/30" />
           )}
 
           {/* Friends */}
           {friends.length > 0 && (
             <div className="flex shrink-0 items-start gap-1">
-              <span className="mr-2 mt-3 text-[10px] font-semibold uppercase tracking-widest text-kollywood-teal/60">
+              <span className="mr-2 mt-3 text-[10px] font-semibold uppercase tracking-widest text-calm/60">
                 Friends
               </span>
               <div className="flex gap-3">
@@ -58,7 +58,7 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
                   >
                     <NpcAvatar
                       name={friend.name}
-                      color={FRIEND_COLORS[friend.failureStyle] || '#14B8A6'}
+                      color={FRIEND_COLORS[friend.failureStyle] || '#0F766E'}
                       panic={friend.panic}
                       isActive={friend.panic > 0}
                     />
@@ -75,28 +75,28 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
       <AnimatePresence>
         {selectedNpc && (
           <motion.div
-            className="absolute left-1/2 top-full z-40 mt-1 -translate-x-1/2 rounded-lg border border-white/10 bg-kollywood-deep/95 px-4 py-2.5 shadow-lg backdrop-blur-md"
+            className="absolute left-1/2 top-full z-40 mt-1 -translate-x-1/2 rounded-lg border border-ink-faint/30 bg-surface px-4 py-2.5 shadow-md"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
           >
             <div className="flex items-center gap-3">
-              <span className="font-semibold" style={{ color: selectedNpc.color || FRIEND_COLORS[selectedNpc.failureStyle] || '#14B8A6' }}>
+              <span className="font-semibold" style={{ color: selectedNpc.color || FRIEND_COLORS[selectedNpc.failureStyle] || '#0F766E' }}>
                 {selectedNpc.name}
               </span>
               {selectedNpc.suspicion !== undefined && (
-                <span className="text-xs text-white/50">
+                <span className="text-xs text-ink-light">
                   Suspicion: {selectedNpc.suspicion}%
                 </span>
               )}
               {selectedNpc.panic !== undefined && selectedNpc.panic > 0 && (
-                <span className="text-xs text-white/50">
+                <span className="text-xs text-ink-light">
                   Panic: {selectedNpc.panic}%
                 </span>
               )}
               {selectedNpc.calmed && (
-                <span className="text-xs text-kollywood-teal">Calmed</span>
+                <span className="text-xs text-calm">Calmed</span>
               )}
             </div>
           </motion.div>
