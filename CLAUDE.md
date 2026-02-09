@@ -6,22 +6,33 @@ Single-page client-side app (no backend). State persisted to localStorage.
 
 ## Quick Commands
 ```bash
-cd vai-raja-vai && npm run dev    # Dev server at :5173
-cd vai-raja-vai && npm run build  # Production build
+npm run dev    # Dev server at :5173
+npm run build  # Production build
 ```
 
 ## Project Structure
 ```
-vai-raja-vai/src/
+/src/
 ├── store/gameStore.js          # Zustand store (all game state + logic)
-├── data/chaoticPool.js         # NPC blurt dialogue bank
+├── data/
+│   ├── chaoticPool.js          # NPC blurt dialogue bank (6 categories)
+│   ├── dialogueContent.js      # Reference dialogue trees (all 4 scenes)
+│   ├── ambushDialogues.js      # Wife ambush templates per scene/wife
+│   └── chaosEvents.js          # Random chaos event definitions + floors
 ├── components/
 │   ├── TitleScreen.jsx         # Start menu
-│   ├── ui/                     # Reusable UI (Header, DialogueBox, etc.)
+│   ├── ui/                     # Reusable UI (Header, DialogueBox, AmbushEvent, etc.)
 │   ├── scenes/                 # 4 game scenes + SceneManager
-│   └── endings/                # 4 ending screens + EndingScreen wrapper
-└── App.jsx                     # Root: routes scenes, manages VRV + inventory
+│   └── endings/                # 6 ending screens + EndingScreen + DisasterRecap
+└── App.jsx                     # Root: routes scenes, manages inventory
 ```
+
+## Key Systems
+- **Wife Ambushes**: Timed interrupts where wives cross-reference facts (ambushDialogues.js)
+- **Friend Autonomy**: Friends wander, drink, and blurt without player control (FriendAlert)
+- **Chaos Events**: Unpreventable random events with per-scene minimum floors
+- **Consistency Engine**: Tracks facts by topic/claim/toldTo, detects cross-wife contradictions
+- **5 Endings**: CLEAN_SWEEP (~10%), SURVIVED_SOMEHOW (~25%), BUSTED (~40%), FULL_CHAOS (~20%), INTERNATIONAL_FUGITIVE (~5%)
 
 ## Key Docs
 | Doc | Path |
