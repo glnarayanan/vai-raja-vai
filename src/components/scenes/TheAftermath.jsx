@@ -87,8 +87,8 @@ export default function TheAftermath() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Aftermath</h2>
-        <p className="text-white/50 text-sm mt-1">Chennai — Three Days Later</p>
+        <h2 className="text-saffron font-bold text-2xl">The Aftermath</h2>
+        <p className="text-ink-light text-sm mt-1">Chennai — Three Days Later</p>
       </motion.div>
 
       {/* Show panic meter during friend-calming dialogues */}
@@ -137,14 +137,10 @@ export default function TheAftermath() {
           animate={{ opacity: 1 }}
           className="text-center py-8"
         >
-          <motion.div
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-amber-400 text-lg font-semibold"
-          >
+          <div className="text-saffron text-lg font-semibold">
             The Ugadi party approaches...
-          </motion.div>
-          <p className="text-white/50 text-sm mt-2">One chance to fix everything.</p>
+          </div>
+          <p className="text-ink-light text-sm mt-2">One chance to fix everything.</p>
         </motion.div>
       )}
     </div>

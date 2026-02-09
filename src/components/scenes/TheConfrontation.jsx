@@ -68,8 +68,8 @@ export default function TheConfrontation() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Confrontation</h2>
-        <p className="text-white/50 text-sm mt-1">
+        <h2 className="text-saffron font-bold text-2xl">The Confrontation</h2>
+        <p className="text-ink-light text-sm mt-1">
           {isMythiliScene ? "Smuggler's Hideout — Mythili Arrives" : "Smuggler's Hideout — Captive"}
         </p>
       </motion.div>
@@ -111,14 +111,10 @@ export default function TheConfrontation() {
           animate={{ opacity: 1 }}
           className="text-center py-8"
         >
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 0.5, repeat: Infinity }}
-            className="text-red-500 text-xl font-bold"
-          >
+          <div className="text-danger text-xl font-bold">
             RUN.
-          </motion.div>
-          <p className="text-white/50 text-sm mt-2">Mythili is on the bridge.</p>
+          </div>
+          <p className="text-ink-light text-sm mt-2">Mythili is on the bridge.</p>
         </motion.div>
       )}
     </div>

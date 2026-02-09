@@ -61,8 +61,8 @@ export default function TheFlight() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Flight</h2>
-        <p className="text-white/50 text-sm mt-1">30,000 feet — Toronto to Chennai</p>
+        <h2 className="text-saffron font-bold text-2xl">The Flight</h2>
+        <p className="text-ink-light text-sm mt-1">30,000 feet — Toronto to Chennai</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -101,14 +101,10 @@ export default function TheFlight() {
           animate={{ opacity: 1 }}
           className="text-center py-8"
         >
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-            className="text-kollywood-teal text-lg font-semibold"
-          >
+          <div className="text-calm text-lg font-semibold">
             Married life begins...
-          </motion.div>
-          <p className="text-white/50 text-sm mt-2">Months pass. Everything seems perfect.</p>
+          </div>
+          <p className="text-ink-light text-sm mt-2">Months pass. Everything seems perfect.</p>
         </motion.div>
       )}
     </div>

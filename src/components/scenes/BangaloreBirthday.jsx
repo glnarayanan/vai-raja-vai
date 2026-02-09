@@ -75,6 +75,7 @@ export default function BangaloreBirthday() {
     if (currentDialogueId === 'birthday_1') return 'Chennai — Ram\'s Apartment';
     if (['birthday_2', 'birthday_3'].includes(currentDialogueId)) return 'Bangalore — Hotel Room';
     if (currentDialogueId === 'birthday_4') return 'Bangalore — Parking Lot';
+    if (currentDialogueId === 'birthday_4b') return 'Highway — Incoming Call';
     if (currentDialogueId === 'birthday_5') return 'Highway — Returning from Riverbed';
     return 'Highway — Back to Chennai';
   };
@@ -86,8 +87,8 @@ export default function BangaloreBirthday() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">Bangalore Birthday</h2>
-        <p className="text-white/50 text-sm mt-1">{getSubtitle()}</p>
+        <h2 className="text-saffron font-bold text-2xl">Bangalore Birthday</h2>
+        <p className="text-ink-light text-sm mt-1">{getSubtitle()}</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -126,14 +127,10 @@ export default function BangaloreBirthday() {
           animate={{ opacity: 1 }}
           className="text-center py-8"
         >
-          <motion.div
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-red-400 text-lg font-semibold"
-          >
+          <div className="text-danger text-lg font-semibold">
             The secret is buried. For now.
-          </motion.div>
-          <p className="text-white/50 text-sm mt-2">Three days later...</p>
+          </div>
+          <p className="text-ink-light text-sm mt-2">Three days later...</p>
         </motion.div>
       )}
     </div>

@@ -65,10 +65,10 @@ export default function TheBridge() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className={`font-bold text-2xl ${isReconciliation ? 'text-kollywood-teal' : 'text-red-400'}`}>
+        <h2 className={`font-bold text-2xl ${isReconciliation ? 'text-calm' : 'text-danger'}`}>
           {isReconciliation ? 'Reconciliation' : 'The Bridge'}
         </h2>
-        <p className="text-white/50 text-sm mt-1">
+        <p className="text-ink-light text-sm mt-1">
           {isReconciliation ? 'The truth comes out.' : 'The bridge — everything ends here.'}
         </p>
       </motion.div>
@@ -114,7 +114,7 @@ export default function TheBridge() {
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ duration: 1 }}
-            className="text-kollywood-teal text-2xl font-bold"
+            className="text-calm text-2xl font-bold"
           >
             Together again.
           </motion.div>
@@ -122,7 +122,7 @@ export default function TheBridge() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="text-white/50 text-sm mt-3"
+            className="text-ink-light text-sm mt-3"
           >
             The whole truth is finally out.
           </motion.p>

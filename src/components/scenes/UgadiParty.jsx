@@ -28,7 +28,7 @@ export default function UgadiParty() {
 
   // Check for friend leaks at key transition points (between dialogue nodes)
   useEffect(() => {
-    const leakNodes = ['party_2', 'party_4'];
+    const leakNodes = ['party_2', 'party_2b', 'party_4', 'party_5'];
     if (!leakNodes.includes(currentDialogueId)) return;
     if (leakCheckDone.current.has(currentDialogueId)) return;
     leakCheckDone.current.add(currentDialogueId);
@@ -43,7 +43,7 @@ export default function UgadiParty() {
           friendName: friend.name,
           leakText: result.leakText,
         });
-        updateMythiliSuspicion(8);
+        updateMythiliSuspicion(12);
         trackRecapEvent({
           type: 'FRIEND_LEAK',
           text: `${friend.name} cracked at the party: "${result.leakText}"`,
@@ -120,8 +120,8 @@ export default function UgadiParty() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Ugadi Party</h2>
-        <p className="text-white/50 text-sm mt-1">
+        <h2 className="text-saffron font-bold text-2xl">The Ugadi Party</h2>
+        <p className="text-ink-light text-sm mt-1">
           {isMaggieScene ? "Reddy's House — Everything Falls Apart" : "Reddy's House — Ugadi Celebration"}
         </p>
       </motion.div>
@@ -173,14 +173,10 @@ export default function UgadiParty() {
           animate={{ opacity: 1 }}
           className="text-center py-8"
         >
-          <motion.div
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="text-red-400 text-lg font-semibold"
-          >
+          <div className="text-danger text-lg font-semibold">
             Dragged away at gunpoint...
-          </motion.div>
-          <p className="text-white/50 text-sm mt-2">The smuggler's hideout awaits.</p>
+          </div>
+          <p className="text-ink-light text-sm mt-2">The smuggler's hideout awaits.</p>
         </motion.div>
       )}
     </div>
