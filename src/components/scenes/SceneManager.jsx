@@ -28,7 +28,7 @@ export default function SceneManager() {
     default:
       return (
         <div className="flex items-center justify-center py-20">
-          <p className="text-white/40">Unknown scene: {currentScene}</p>
+          <p className="text-ink-light">Unknown scene: {currentScene}</p>
         </div>
       );
   }

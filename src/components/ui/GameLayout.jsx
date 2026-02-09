@@ -11,7 +11,7 @@ export default function GameLayout({
   onUseItem,
 }) {
   return (
-    <div className="relative flex min-h-screen flex-col bg-kollywood-midnight">
+    <div className="relative flex min-h-screen flex-col bg-paper">
       {/* Sticky header */}
       <Header sceneTitle={sceneTitle} mythiliSuspicion={mythiliSuspicion} />
 
