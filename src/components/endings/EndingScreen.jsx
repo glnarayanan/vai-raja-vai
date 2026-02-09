@@ -1,11 +1,17 @@
 import CleanSweep from './CleanSweep';
 import RiverbedRun from './RiverbedRun';
 import InternationalFugitive from './InternationalFugitive';
+import SurvivedSomehow from './SurvivedSomehow';
+import Busted from './Busted';
+import FullChaos from './FullChaos';
 
 const ENDINGS = {
   cleanSweep: CleanSweep,
   riverbedRun: RiverbedRun,
   internationalFugitive: InternationalFugitive,
+  survivedSomehow: SurvivedSomehow,
+  busted: Busted,
+  fullChaos: FullChaos,
 };
 
 export default function EndingScreen({ ending, onPlayAgain, stats, technicalities }) {
