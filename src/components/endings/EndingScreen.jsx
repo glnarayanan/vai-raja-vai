@@ -1,9 +1,12 @@
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import CleanSweep from './CleanSweep';
 import RiverbedRun from './RiverbedRun';
 import InternationalFugitive from './InternationalFugitive';
 import SurvivedSomehow from './SurvivedSomehow';
 import Busted from './Busted';
 import FullChaos from './FullChaos';
+import DisasterRecap from './DisasterRecap';
 
 const ENDINGS = {
   cleanSweep: CleanSweep,
@@ -15,6 +18,7 @@ const ENDINGS = {
 };
 
 export default function EndingScreen({ ending, onPlayAgain, stats, technicalities }) {
+  const [showRecap, setShowRecap] = useState(false);
   const EndingComponent = ENDINGS[ending];
 
   if (!EndingComponent) {
@@ -36,10 +40,50 @@ export default function EndingScreen({ ending, onPlayAgain, stats, technicalitie
   }
 
   return (
-    <EndingComponent
-      onPlayAgain={onPlayAgain}
-      stats={stats}
-      technicalities={technicalities}
-    />
+    <div className="relative">
+      <AnimatePresence mode="wait">
+        {showRecap ? (
+          <motion.div
+            key="recap"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <DisasterRecap
+              onBack={() => setShowRecap(false)}
+              onPlayAgain={onPlayAgain}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="ending"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <EndingComponent
+              onPlayAgain={onPlayAgain}
+              stats={stats}
+              technicalities={technicalities}
+            />
+
+            {/* Recap toggle button */}
+            <motion.button
+              onClick={() => setShowRecap(true)}
+              className="fixed bottom-6 right-6 z-50 cursor-pointer rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-medium text-white/80 shadow-lg backdrop-blur-sm transition-colors duration-200 hover:bg-white/15"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 5.0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              View Your Chaos Recap
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

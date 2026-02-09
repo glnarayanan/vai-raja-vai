@@ -709,16 +709,88 @@ const useGameStore = create(
       },
 
       getDisasterRecap: () => {
-        // Phase 9: Build recap from collisionReveals, blurtHistory, etc.
         const state = get();
+        const duration = state.gameStartTime ? Date.now() - state.gameStartTime : 0;
+        const globalSuspicion = get().getGlobalSuspicion();
+        const maxWifeSuspicion = Math.max(...state.wives.map((w) => w.suspicion));
+
+        // Chaos score 0-100
+        const blurtCount = state.friendBlurtHistory.length;
+        const revealCount = state.collisionReveals.length;
+        const ambushCount = state.ambushHistory.length;
+        const chaosEventCount = state.chaosEventsTriggered.length;
+        const stormedOff = Object.values(state.wifePatience).filter((p) => p <= 0).length;
+
+        const chaosScore = Math.min(
+          100,
+          Math.round(
+            globalSuspicion * 0.3 +
+            blurtCount * 8 +
+            revealCount * 10 +
+            ambushCount * 3 +
+            chaosEventCount * 5 +
+            stormedOff * 15
+          )
+        );
+
+        // Contradictions: find facts on same topic told to different wives with different claims
+        const contradictions = [];
+        const byTopic = {};
+        for (const fact of state.factLedger) {
+          if (!fact.topic) continue;
+          if (!byTopic[fact.topic]) byTopic[fact.topic] = [];
+          byTopic[fact.topic].push(fact);
+        }
+        for (const facts of Object.values(byTopic)) {
+          for (let i = 0; i < facts.length; i++) {
+            for (let j = i + 1; j < facts.length; j++) {
+              if (facts[i].toldTo !== facts[j].toldTo && facts[i].claim !== facts[j].claim) {
+                const wifeName1 = state.wives.find((w) => w.id === facts[i].toldTo)?.name || facts[i].toldTo;
+                const wifeName2 = state.wives.find((w) => w.id === facts[j].toldTo)?.name || facts[j].toldTo;
+                contradictions.push({
+                  topic: facts[i].subject || facts[i].topic,
+                  version1: { wife: wifeName1, claim: facts[i].statement },
+                  version2: { wife: wifeName2, claim: facts[j].statement },
+                });
+              }
+            }
+          }
+        }
+
+        // Friend blurt highlights
+        const blurtHighlights = state.friendBlurtHistory.map((b) => {
+          const friendName = state.friends.find((f) => f.id === b.friendId)?.name || b.friendId;
+          const wifeName = state.wives.find((w) => w.id === b.wifeId)?.name || b.wifeId;
+          return { friend: friendName, wife: wifeName, blurt: b.blurt };
+        });
+
         return {
-          collisionReveals: state.collisionReveals,
-          friendBlurtHistory: state.friendBlurtHistory,
-          ambushHistory: state.ambushHistory,
-          wives: state.wives,
-          duration: state.gameStartTime ? Date.now() - state.gameStartTime : 0,
-          recapEvents: state.recapEvents,
+          duration,
+          chaosScore,
+          globalSuspicion: Math.round(globalSuspicion),
+          maxWifeSuspicion: Math.round(maxWifeSuspicion),
+          wives: state.wives.map((w) => ({ name: w.name, suspicion: Math.round(w.suspicion) })),
+          contradictions,
+          blurtHighlights,
+          ambushCount,
+          chaosEventCount,
+          friendInterceptedCount: state.friendInterceptedCount,
+          stormedOff,
+          liesTotal: state.factLedger.length,
         };
+      },
+
+      generateShareText: () => {
+        const recap = get().getDisasterRecap();
+        const mins = Math.floor(recap.duration / 60000);
+        const parts = [`I survived ${mins} min`];
+        if (recap.blurtHighlights.length > 0) {
+          const first = recap.blurtHighlights[0];
+          parts.push(`before ${first.friend} told ${first.wife} about "${first.blurt.slice(0, 40)}"`);
+        }
+        parts.push(`Chaos Score: ${recap.chaosScore}/100.`);
+        parts.push('#VaiRajaVai #Panchathanthiram');
+        return parts.join(' ');
       },
 
       drainPatience: (wifeId) => {
