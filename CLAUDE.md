@@ -10,6 +10,12 @@ npm run dev    # Dev server at :5173
 npm run build  # Production build
 ```
 
+## GitHub Pages Deployment
+Deployment is automated via GitHub Actions (`.github/workflows/deploy.yml`).
+- Pushes to `main` branch trigger automatic deployment
+- The built site is served from `/vai-raja-vai/` base path
+- `.nojekyll` file prevents Jekyll processing (required for JSX syntax in docs)
+
 ## Project Structure
 ```
 /src/
