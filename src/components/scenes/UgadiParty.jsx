@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
-import RecoveryMode from '../ui/RecoveryMode';
 import { chaoticPool } from '../../data/chaoticPool';
 
 const PARTY_DIALOGUES = [
@@ -338,8 +337,6 @@ const PARTY_DIALOGUES = [
 export default function UgadiParty() {
   const [currentDialogueId, setCurrentDialogueId] = useState('party_1');
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [showRecovery, setShowRecovery] = useState(false);
-  const [recoveryData, setRecoveryData] = useState(null);
   const [foundPhoto, setFoundPhoto] = useState(false);
   const [blurtMessage, setBlurtMessage] = useState(null);
   const alcoholTimerRef = useRef(null);
@@ -354,8 +351,6 @@ export default function UgadiParty() {
   const acquireEvidence = useGameStore((s) => s.acquireEvidence);
   const factLedger = useGameStore((s) => s.factLedger);
   const validateConsistency = useGameStore((s) => s.validateConsistency);
-  const triggerRecoveryMode = useGameStore((s) => s.triggerRecoveryMode);
-  const resolveRecovery = useGameStore((s) => s.resolveRecovery);
   const saveGame = useGameStore((s) => s.saveGame);
   const getGlobalSuspicion = useGameStore((s) => s.getGlobalSuspicion);
   const foundPhotoRef = useRef(false);
@@ -446,18 +441,11 @@ export default function UgadiParty() {
 
         addFact(newFact);
 
-        // Check consistency
+        // Check consistency — collision bumps suspicion directly
         const validation = validateConsistency(newFact);
         if (validation && validation.hasCollision) {
           const wifeId = response.wifeId || 'wife_mythili';
-          const wife = wives.find((w) => w.id === wifeId) || wives[0];
-          setRecoveryData({
-            collision: validation,
-            wife,
-          });
-          setShowRecovery(true);
-          saveGame();
-          return;
+          updateWifeSuspicion(wifeId, 10);
         }
       }
 
@@ -471,22 +459,7 @@ export default function UgadiParty() {
         if (blurtResult) {
           setBlurtMessage(blurtResult);
           updateWifeSuspicion(response.wifeId || 'wife_mythili', 15);
-          // Trigger recovery after showing the blurt
-          setTimeout(() => {
-            setBlurtMessage(null);
-            const blurtWifeId = response.wifeId || 'wife_mythili';
-            const blurtWife = wives.find((w) => w.id === blurtWifeId) || wives[0];
-            setRecoveryData({
-              collision: {
-                hasCollision: true,
-                collisionType: 'CHAOTIC_BLURT',
-                blurt: blurtResult.blurt,
-                friend: blurtResult.friend.name,
-              },
-              wife: blurtWife,
-            });
-            setShowRecovery(true);
-          }, 2000);
+          setTimeout(() => setBlurtMessage(null), 2000);
           saveGame();
           return;
         }
@@ -524,44 +497,6 @@ export default function UgadiParty() {
       wives,
     ]
   );
-
-  const handleRecoveryResolve = useCallback(
-    (optionId) => {
-      // Call the store's resolveRecovery with SCREAMING_SNAKE_CASE option
-      const optionMap = { 'technicality': 'TECHNICALITY', 'double-down': 'DOUBLE_DOWN', 'diversion': 'DIVERSION' };
-      resolveRecovery(optionMap[optionId] || optionId);
-
-      setShowRecovery(false);
-      setRecoveryData(null);
-
-      const dialogue = PARTY_DIALOGUES.find((d) => d.id === currentDialogueId);
-      const currentResponse = dialogue?.responses?.[0];
-
-      if (currentResponse?.nextDialogue) {
-        setIsTransitioning(true);
-        setTimeout(() => {
-          setCurrentDialogueId(currentResponse.nextDialogue);
-          setIsTransitioning(false);
-        }, 500);
-      }
-    },
-    [currentDialogueId, resolveRecovery]
-  );
-
-  const handleRecoveryTimeout = useCallback(() => {
-    // Use getState() to avoid stale closure over recoveryData
-    const currentRecoveryData = useGameStore.getState().recoveryMode;
-    const wifeId = currentRecoveryData?.wife || 'wife_mythili';
-
-    setShowRecovery(false);
-    setRecoveryData(null);
-    updateWifeSuspicion(wifeId, 20);
-
-    const globalSusp = getGlobalSuspicion();
-    if (globalSusp >= 85) {
-      transitionScene('RIVERBED_FINALE');
-    }
-  }, [updateWifeSuspicion, getGlobalSuspicion, transitionScene]);
 
   const currentDialogue = PARTY_DIALOGUES.find((d) => d.id === currentDialogueId);
 
@@ -609,7 +544,7 @@ export default function UgadiParty() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        {!isTransitioning && !showRecovery && currentDialogue && (
+        {!isTransitioning && currentDialogue && (
           <motion.div
             key={currentDialogueId}
             initial={{ opacity: 0, x: 20 }}
@@ -639,17 +574,6 @@ export default function UgadiParty() {
         )}
       </AnimatePresence>
 
-      {/* Recovery Mode Overlay */}
-      <AnimatePresence>
-        {showRecovery && recoveryData && (
-          <RecoveryMode
-            collision={recoveryData.collision}
-            wife={recoveryData.wife}
-            onResolve={handleRecoveryResolve}
-            onTimeout={handleRecoveryTimeout}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

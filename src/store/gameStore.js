@@ -8,10 +8,6 @@ import { persist, createJSONStorage } from "zustand/middleware";
 const GAME_VERSION = "2.0.0";
 const SAVE_KEY = "vai-raja-vai-save-v2";
 const MANUAL_SAVE_KEY = "vai-raja-vai-manual-save-v2";
-const VAI_RAJA_VAI_COOLDOWN_MS = 60_000;
-const SYNC_LEAKAGE_RISK = 0.1; // 10%
-const SYNC_LEAKAGE_SUSPICION = 20;
-
 const SCENES = [
   "TITLE",
   "THE_RETURN",
@@ -23,9 +19,11 @@ const SCENES = [
 
 const ENDINGS = [
   "CLEAN_SWEEP",
-  "I_DIDNT_SAY_DANCE",
   "RIVERBED_RUN",
   "INTERNATIONAL_FUGITIVE",
+  "SURVIVED_SOMEHOW",
+  "BUSTED",
+  "FULL_CHAOS",
 ];
 
 const COLLISION_TYPES = {
@@ -156,12 +154,6 @@ const createInitialState = () => ({
       acquired: true,
     },
   ],
-
-  // Vai Raja Vai sync cooldown
-  vaiRajaVaiCooldownEnd: null,
-
-  // Recovery mode
-  recoveryMode: null,
 
   // Current dialogue state
   currentDialogue: null,
@@ -323,57 +315,7 @@ const useGameStore = create(
       },
 
       // =====================================================================
-      // 6. syncFriends()
-      // =====================================================================
-      syncFriends: () => {
-        const { factLedger } = get();
-        const now = Date.now();
-
-        set((state) => ({
-          friends: state.friends.map((friend) => ({
-            ...friend,
-            knowledgeBase: [...factLedger],
-            lastSyncedAt: now,
-          })),
-        }));
-
-        // 10% leakage risk — a wife overhears or a friend lets something slip
-        if (Math.random() < SYNC_LEAKAGE_RISK) {
-          const { wives } = get();
-          // Pick a random wife to gain suspicion
-          const targetWife = wives[Math.floor(Math.random() * wives.length)];
-          get().updateWifeSuspicion(targetWife.id, SYNC_LEAKAGE_SUSPICION);
-
-          return {
-            leaked: true,
-            leakedTo: targetWife.id,
-            leakedToName: targetWife.name,
-          };
-        }
-
-        return { leaked: false };
-      },
-
-      // =====================================================================
-      // 7. setVaiRajaVaiCooldown()
-      // =====================================================================
-      setVaiRajaVaiCooldown: () => {
-        set({
-          vaiRajaVaiCooldownEnd: Date.now() + VAI_RAJA_VAI_COOLDOWN_MS,
-        });
-      },
-
-      // =====================================================================
-      // 8. isVaiRajaVaiAvailable()
-      // =====================================================================
-      isVaiRajaVaiAvailable: () => {
-        const { vaiRajaVaiCooldownEnd } = get();
-        if (vaiRajaVaiCooldownEnd === null) return true;
-        return Date.now() >= vaiRajaVaiCooldownEnd;
-      },
-
-      // =====================================================================
-      // 9. acquireEvidence(itemId)
+      // 6. acquireEvidence(itemId)
       // =====================================================================
       acquireEvidence: (itemId) => {
         set((state) => {
@@ -461,22 +403,7 @@ const useGameStore = create(
       },
 
       // =====================================================================
-      // 13. needsSync(friendId)
-      // =====================================================================
-      needsSync: (friendId) => {
-        const { friends, factLedger } = get();
-        const friend = friends.find((f) => f.id === friendId);
-        if (!friend) return false;
-
-        // If never synced, any facts mean they need sync
-        if (friend.lastSyncedAt === null) return factLedger.length > 0;
-
-        // Check if any facts were added after last sync
-        return factLedger.some((fact) => fact.createdAt > friend.lastSyncedAt);
-      },
-
-      // =====================================================================
-      // 14. getChaoticBlurtRisk(friendId)
+      // 10. getChaoticBlurtRisk(friendId)
       // =====================================================================
       getChaoticBlurtRisk: (friendId) => {
         const { friends } = get();
@@ -511,7 +438,6 @@ const useGameStore = create(
           currentScene: sceneId,
           currentDialogue: null,
           currentWife: null,
-          recoveryMode: null,
         });
       },
 
@@ -530,136 +456,63 @@ const useGameStore = create(
       },
 
       // =====================================================================
-      // 18. triggerRecoveryMode(collision, wifeId)
+      // 14. resolveCollision(wifeId, option)
       // =====================================================================
-      triggerRecoveryMode: (collision, wifeId) => {
-        set({
-          recoveryMode: {
-            collision,
-            wife: wifeId,
-            timer: Date.now(),
-            options: ["TECHNICALITY", "DOUBLE_DOWN", "DIVERSION"],
-          },
-        });
-      },
+      resolveCollision: (wifeId, option) => {
+        const { wives, playerStats, inventory } = get();
+        const wife = wives.find((w) => w.id === wifeId);
+        if (!wife) return { success: false, reason: "Wife not found." };
 
-      // =====================================================================
-      // 19. resolveRecovery(option)
-      // =====================================================================
-      resolveRecovery: (option) => {
-        const { recoveryMode, wives, playerStats, inventory } = get();
-
-        if (!recoveryMode) {
-          return { success: false, reason: "Not in recovery mode." };
-        }
-
-        const wife = wives.find((w) => w.id === recoveryMode.wife);
-        if (!wife) {
-          return { success: false, reason: "Wife not found." };
-        }
-
-        // Base success rates per wife (keyed by wife id)
-        // Higher intelligence wives are harder to fool
+        // Base success rates per wife intelligence
         const baseRates = {
-          TECHNICALITY: {
-            wife_mythili: 20,
-            wife_ammini: 30,
-            wife_chamundi: 35,
-            wife_janaki: 45,
-            wife_mrs_reddy: 50,
-          },
-          DOUBLE_DOWN: {
-            wife_mythili: 15,
-            wife_ammini: 25,
-            wife_chamundi: 30,
-            wife_janaki: 40,
-            wife_mrs_reddy: 45,
-          },
-          DIVERSION: {
-            wife_mythili: 25,
-            wife_ammini: 35,
-            wife_chamundi: 40,
-            wife_janaki: 50,
-            wife_mrs_reddy: 55,
-          },
+          REFRAME: { wife_mythili: 20, wife_ammini: 30, wife_chamundi: 35, wife_janaki: 45, wife_mrs_reddy: 50 },
+          DOUBLE_DOWN: { wife_mythili: 15, wife_ammini: 25, wife_chamundi: 30, wife_janaki: 40, wife_mrs_reddy: 45 },
+          DEFLECT: { wife_mythili: 25, wife_ammini: 35, wife_chamundi: 40, wife_janaki: 50, wife_mrs_reddy: 55 },
         };
 
         const optionRates = baseRates[option];
-        if (!optionRates) {
-          return { success: false, reason: `Invalid option: ${option}` };
-        }
+        if (!optionRates) return { success: false, reason: `Invalid option: ${option}` };
 
         let baseRate = optionRates[wife.id] ?? 30;
-
-        // Player confidence bonus
         baseRate += playerStats.confidence / 10;
 
-        // Diamond bonus for DOUBLE_DOWN
         if (option === "DOUBLE_DOWN") {
           const hasDiamond = inventory.some(
-            (item) =>
-              item.id === "item_diamond" &&
-              item.acquired &&
-              item.status !== "DESTROYED"
+            (item) => item.id === "item_diamond" && item.acquired && item.status !== "DESTROYED"
           );
-          if (hasDiamond) {
-            baseRate += 20;
-          }
+          if (hasDiamond) baseRate += 20;
         }
 
         const roll = Math.random() * 100;
         const success = roll < baseRate;
 
-        // Update player stats
-        const statKey =
-          option === "TECHNICALITY"
-            ? "technicalityCount"
-            : option === "DOUBLE_DOWN"
-              ? "doubleDownCount"
-              : "diversionCount";
-
         if (success) {
           set((state) => ({
             playerStats: {
               ...state.playerStats,
-              [statKey]: state.playerStats[statKey] + 1,
               confidence: clamp(state.playerStats.confidence + 5, 0, 100),
             },
-            recoveryMode: null,
           }));
         } else {
-          // Failed recovery — suspicion spikes based on wife's gain rate
           const suspicionPenalty = wife.suspicionGainRate * 3;
           get().updateWifeSuspicion(wife.id, suspicionPenalty);
-
+          // Cascade: +5 to all other wives
+          wives.forEach((w) => {
+            if (w.id !== wife.id) get().updateWifeSuspicion(w.id, 5);
+          });
           set((state) => ({
             playerStats: {
               ...state.playerStats,
-              [statKey]: state.playerStats[statKey] + 1,
               confidence: clamp(state.playerStats.confidence - 10, 0, 100),
             },
-            recoveryMode: null,
           }));
         }
 
-        return {
-          success,
-          roll: Math.round(roll),
-          threshold: Math.round(baseRate),
-          option,
-          wifeId: wife.id,
-        };
+        return { success, roll: Math.round(roll), threshold: Math.round(baseRate), option, wifeId: wife.id };
       },
 
       // =====================================================================
-      // 20. clearRecoveryMode()
-      // =====================================================================
-      clearRecoveryMode: () => {
-        set({ recoveryMode: null });
-      },
-
-      // =====================================================================
-      // 21. startNewGame()
+      // 15. startNewGame()
       // =====================================================================
       startNewGame: () => {
         set({
@@ -673,48 +526,34 @@ const useGameStore = create(
       // 22. determineEnding()
       // =====================================================================
       determineEnding: () => {
-        const {
-          wives,
-          diamondDiscovered,
-          evidenceTossFailed,
-          playerStats,
-          factLedger,
-        } = get();
+        const { wives, diamondDiscovered } = get();
 
         const globalSuspicion = get().getGlobalSuspicion();
         const maxSuspicion = Math.max(...wives.map((w) => w.suspicion));
-        const immutableFacts = factLedger.filter((f) => f.immutable).length;
+        const wivesAbove50 = wives.filter((w) => w.suspicion > 50).length;
 
-        // CLEAN_SWEEP: All wives have low suspicion and most facts are locked
-        if (
-          globalSuspicion < 20 &&
-          maxSuspicion < 30 &&
-          immutableFacts >= Math.floor(factLedger.length * 0.5)
-        ) {
-          return "CLEAN_SWEEP";
-        }
-
-        // I_DIDNT_SAY_DANCE: Moderate suspicion, player relied on diversions
-        if (
-          globalSuspicion >= 20 &&
-          globalSuspicion < 60 &&
-          playerStats.diversionCount >= 3
-        ) {
-          return "I_DIDNT_SAY_DANCE";
-        }
-
-        // RIVERBED_RUN: Diamond was discovered or evidence toss failed
-        if (diamondDiscovered || evidenceTossFailed) {
-          return "RIVERBED_RUN";
-        }
-
-        // INTERNATIONAL_FUGITIVE: Maximum chaos — high suspicion everywhere
-        if (globalSuspicion >= 60 || maxSuspicion >= 80) {
+        // INTERNATIONAL_FUGITIVE (~5%): diamond discovered
+        if (diamondDiscovered) {
           return "INTERNATIONAL_FUGITIVE";
         }
 
-        // Fallback — shouldn't normally reach here, but default to the safest ending
-        return "I_DIDNT_SAY_DANCE";
+        // CLEAN_SWEEP (~10%): very hard to achieve
+        if (globalSuspicion < 10 && maxSuspicion < 20) {
+          return "CLEAN_SWEEP";
+        }
+
+        // FULL_CHAOS (~20%): everything fell apart
+        if (globalSuspicion > 70 || wivesAbove50 >= 4) {
+          return "FULL_CHAOS";
+        }
+
+        // SURVIVED_SOMEHOW (~25%): scraped by
+        if (globalSuspicion < 40 && wivesAbove50 <= 2) {
+          return "SURVIVED_SOMEHOW";
+        }
+
+        // BUSTED (~40%): default fallback
+        return "BUSTED";
       },
 
       // =====================================================================
@@ -731,7 +570,6 @@ const useGameStore = create(
           currentScene: "ENDING",
           currentDialogue: null,
           currentWife: null,
-          recoveryMode: null,
         });
       },
 
@@ -752,8 +590,6 @@ const useGameStore = create(
             wives: state.wives,
             friends: state.friends,
             inventory: state.inventory,
-            vaiRajaVaiCooldownEnd: state.vaiRajaVaiCooldownEnd,
-            recoveryMode: state.recoveryMode,
             currentDialogue: state.currentDialogue,
             currentWife: state.currentWife,
             alcoholTimerActive: state.alcoholTimerActive,
@@ -829,8 +665,6 @@ const useGameStore = create(
         wives: state.wives,
         friends: state.friends,
         inventory: state.inventory,
-        vaiRajaVaiCooldownEnd: state.vaiRajaVaiCooldownEnd,
-        recoveryMode: state.recoveryMode,
         currentDialogue: state.currentDialogue,
         currentWife: state.currentWife,
         alcoholTimerActive: state.alcoholTimerActive,
