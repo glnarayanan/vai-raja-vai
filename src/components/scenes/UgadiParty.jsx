@@ -4,7 +4,9 @@ import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
 import FriendAlert from '../ui/FriendAlert';
+import AmbushEvent from '../ui/AmbushEvent';
 import { chaoticPool } from '../../data/chaoticPool';
+import { getAmbushDialogue } from '../../data/ambushDialogues';
 
 const PARTY_DIALOGUES = [
   {
@@ -358,9 +360,14 @@ export default function UgadiParty() {
   const interceptFriend = useGameStore((s) => s.interceptFriend);
   const getChaoticBlurtRisk = useGameStore((s) => s.getChaoticBlurtRisk);
   const friendAlert = useGameStore((s) => s.friendAlert);
+  const triggerWifeAmbush = useGameStore((s) => s.triggerWifeAmbush);
+  const resolveAmbush = useGameStore((s) => s.resolveAmbush);
+  const currentAmbush = useGameStore((s) => s.currentAmbush);
+  const [ambushDialogue, setAmbushDialogue] = useState(null);
   const foundPhotoRef = useRef(false);
   const friendTimerRef = useRef(null);
   const friendAlertTimeoutRef = useRef(null);
+  const ambushTimerRef = useRef(null);
 
   // Alcohol timer - increment every 15 seconds
   useEffect(() => {
@@ -412,6 +419,31 @@ export default function UgadiParty() {
     }, 5000);
     return () => clearTimeout(friendAlertTimeoutRef.current);
   }, [friendAlert, getChaoticBlurtRisk, friends, updateWifeSuspicion]);
+
+  // Wife ambush timer — every 45-90s + 20% chance after dialogue
+  useEffect(() => {
+    const scheduleAmbush = () => {
+      const delay = 45000 + Math.random() * 45000; // 45-90s
+      ambushTimerRef.current = setTimeout(() => {
+        if (!currentAmbush) {
+          const randomWife = wives[Math.floor(Math.random() * wives.length)];
+          const dialogue = getAmbushDialogue('UGADI_PARTY', randomWife.id);
+          if (dialogue) {
+            triggerWifeAmbush(randomWife.id, 'UGADI_PARTY');
+            setAmbushDialogue({ dialogue, wife: randomWife });
+          }
+        }
+        scheduleAmbush();
+      }, delay);
+    };
+    scheduleAmbush();
+    return () => clearTimeout(ambushTimerRef.current);
+  }, [triggerWifeAmbush, wives, currentAmbush]);
+
+  // When currentAmbush is cleared externally, clear local dialogue too
+  useEffect(() => {
+    if (!currentAmbush) setAmbushDialogue(null);
+  }, [currentAmbush]);
 
   // Keep foundPhotoRef in sync with foundPhoto state
   useEffect(() => {
@@ -558,6 +590,14 @@ export default function UgadiParty() {
     // Do nothing — the 5s auto-dismiss will handle the blurt roll
   }, []);
 
+  const handleAmbushResolve = useCallback(
+    (option) => {
+      resolveAmbush(option);
+      saveGame();
+    },
+    [resolveAmbush, saveGame]
+  );
+
   const currentDialogue = PARTY_DIALOGUES.find((d) => d.id === currentDialogueId);
 
   return (
@@ -569,6 +609,16 @@ export default function UgadiParty() {
             alert={friendAlert}
             onIntercept={handleIntercept}
             onIgnore={handleIgnoreAlert}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Wife ambush overlay */}
+      <AnimatePresence>
+        {ambushDialogue && (
+          <AmbushEvent
+            ambush={ambushDialogue}
+            onResolve={handleAmbushResolve}
           />
         )}
       </AnimatePresence>

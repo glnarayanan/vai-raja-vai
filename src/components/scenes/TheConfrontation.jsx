@@ -1,8 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
+import AmbushEvent from '../ui/AmbushEvent';
+import { getAmbushDialogue } from '../../data/ambushDialogues';
 
 const CONFRONTATION_DIALOGUES = [
   {
@@ -221,6 +223,8 @@ const CONFRONTATION_DIALOGUES = [
 export default function TheConfrontation() {
   const [currentDialogueId, setCurrentDialogueId] = useState('confront_1');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [ambushDialogue, setAmbushDialogue] = useState(null);
+  const ambushTimerRef = useRef(null);
 
   const addFact = useGameStore((s) => s.addFact);
   const updateWifeSuspicion = useGameStore((s) => s.updateWifeSuspicion);
@@ -231,6 +235,41 @@ export default function TheConfrontation() {
   const diamondDiscovered = useGameStore((s) => s.diamondDiscovered);
   const triggerEnding = useGameStore((s) => s.triggerEnding);
   const wives = useGameStore((s) => s.wives);
+  const triggerWifeAmbush = useGameStore((s) => s.triggerWifeAmbush);
+  const resolveAmbush = useGameStore((s) => s.resolveAmbush);
+  const currentAmbush = useGameStore((s) => s.currentAmbush);
+
+  // Wife ambush timer — higher frequency in confrontation (30-60s)
+  useEffect(() => {
+    const scheduleAmbush = () => {
+      const delay = 30000 + Math.random() * 30000;
+      ambushTimerRef.current = setTimeout(() => {
+        if (!currentAmbush) {
+          const randomWife = wives[Math.floor(Math.random() * wives.length)];
+          const dialogue = getAmbushDialogue('THE_CONFRONTATION', randomWife.id);
+          if (dialogue) {
+            triggerWifeAmbush(randomWife.id, 'THE_CONFRONTATION');
+            setAmbushDialogue({ dialogue, wife: randomWife });
+          }
+        }
+        scheduleAmbush();
+      }, delay);
+    };
+    scheduleAmbush();
+    return () => clearTimeout(ambushTimerRef.current);
+  }, [triggerWifeAmbush, wives, currentAmbush]);
+
+  useEffect(() => {
+    if (!currentAmbush) setAmbushDialogue(null);
+  }, [currentAmbush]);
+
+  const handleAmbushResolve = useCallback(
+    (option) => {
+      resolveAmbush(option);
+      saveGame();
+    },
+    [resolveAmbush, saveGame]
+  );
 
   const currentDialogue = CONFRONTATION_DIALOGUES.find((d) => d.id === currentDialogueId);
 
@@ -301,6 +340,16 @@ export default function TheConfrontation() {
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+      {/* Wife ambush overlay */}
+      <AnimatePresence>
+        {ambushDialogue && (
+          <AmbushEvent
+            ambush={ambushDialogue}
+            onResolve={handleAmbushResolve}
+          />
+        )}
+      </AnimatePresence>
+
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

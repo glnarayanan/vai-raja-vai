@@ -577,7 +577,18 @@ const useGameStore = create(
       // =====================================================================
 
       triggerWifeAmbush: (wifeId, sceneId) => {
-        // Phase 6: Find cross-wife contradictions, build ambush dialogue
+        // Set currentAmbush — the component is responsible for picking the dialogue
+        const { wives } = get();
+        const wife = wives.find((w) => w.id === wifeId);
+        if (!wife) return;
+
+        set((state) => ({
+          currentAmbush: { wifeId, sceneId, timestamp: Date.now() },
+          ambushHistory: [
+            ...state.ambushHistory,
+            { wifeId, scene: sceneId, timestamp: Date.now() },
+          ],
+        }));
       },
 
       triggerChaosEvent: (eventId) => {
@@ -609,8 +620,49 @@ const useGameStore = create(
         }));
       },
 
-      resolveAmbush: (responseId) => {
-        // Phase 6: Hidden roll vs wife intelligence, cascade on fail
+      resolveAmbush: (option) => {
+        const { currentAmbush, wives } = get();
+        if (!currentAmbush) return { success: false };
+
+        const wife = wives.find((w) => w.id === currentAmbush.wifeId);
+        if (!wife) return { success: false };
+
+        // Base success rates per option type
+        const baseRates = { REFRAME: 45, DOUBLE_DOWN: 30, DEFLECT: 55 };
+        const baseRate = baseRates[option] || 40;
+        // Wife intelligence reduces success (higher intel = harder)
+        const successChance = Math.max(10, baseRate - (wife.intelligence - 50));
+        const roll = Math.random() * 100;
+        const success = roll < successChance;
+
+        if (success) {
+          // Minor suspicion bump even on success
+          get().updateWifeSuspicion(currentAmbush.wifeId, 3);
+        } else {
+          // Failed: suspicion spike + cascade to other wives
+          get().updateWifeSuspicion(currentAmbush.wifeId, 12);
+          // Cascade: +5 to two random other wives
+          const otherWives = wives.filter((w) => w.id !== currentAmbush.wifeId);
+          const shuffled = otherWives.sort(() => Math.random() - 0.5);
+          for (let i = 0; i < Math.min(2, shuffled.length); i++) {
+            get().updateWifeSuspicion(shuffled[i].id, 5);
+          }
+        }
+
+        set((state) => ({
+          currentAmbush: null,
+          recapEvents: [
+            ...state.recapEvents,
+            {
+              type: success ? 'AMBUSH_SURVIVED' : 'AMBUSH_FAILED',
+              text: `${wife.name} ambushed you (${option}) — ${success ? 'survived' : 'caught!'}`,
+              timestamp: Date.now(),
+              scene: currentAmbush.sceneId,
+            },
+          ],
+        }));
+
+        return { success };
       },
 
       trackRecapEvent: (event) => {
@@ -633,7 +685,36 @@ const useGameStore = create(
       },
 
       drainPatience: (wifeId) => {
-        // Phase 6: Decrement patience, storm off if 0
+        const { wifePatience } = get();
+        const current = wifePatience[wifeId] ?? 3;
+        const next = current - 1;
+
+        if (next <= 0) {
+          // Wife storms off — +15 to all other wives
+          const { wives } = get();
+          wives.forEach((w) => {
+            if (w.id !== wifeId) {
+              get().updateWifeSuspicion(w.id, 15);
+            }
+          });
+
+          set((state) => ({
+            wifePatience: { ...state.wifePatience, [wifeId]: 0 },
+            recapEvents: [
+              ...state.recapEvents,
+              {
+                type: 'WIFE_STORMED_OFF',
+                text: `${wives.find((w) => w.id === wifeId)?.name || wifeId} stormed off!`,
+                timestamp: Date.now(),
+                scene: state.currentScene,
+              },
+            ],
+          }));
+        } else {
+          set((state) => ({
+            wifePatience: { ...state.wifePatience, [wifeId]: next },
+          }));
+        }
       },
 
       interceptFriend: (friendId) => {
