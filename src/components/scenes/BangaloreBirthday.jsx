@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
+import ChapterCard from '../ui/ChapterCard';
 import { BANGALORE_BIRTHDAY_DIALOGUES } from '../../data/dialogueContent';
 
 export default function BangaloreBirthday() {
@@ -81,14 +82,14 @@ export default function BangaloreBirthday() {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-5">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="text-center"
       >
-        <h2 className="text-saffron font-bold text-2xl">Bangalore Birthday</h2>
-        <p className="text-ink-light text-sm mt-1">{getSubtitle()}</p>
+        <p className="font-ui text-xs tracking-wide text-ink-light">{getSubtitle()}</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -122,16 +123,12 @@ export default function BangaloreBirthday() {
       </AnimatePresence>
 
       {isTransitioning && !currentDialogue.responses[0]?.nextDialogue && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-8"
-        >
-          <div className="text-danger text-lg font-semibold">
-            The secret is buried. For now.
-          </div>
-          <p className="text-ink-light text-sm mt-2">Three days later...</p>
-        </motion.div>
+        <ChapterCard
+          scene="BANGALORE_BIRTHDAY"
+          headline="The secret is buried. For now."
+          subtext="Three days later..."
+          color="text-danger"
+        />
       )}
     </div>
   );

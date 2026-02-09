@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
+import ChapterCard from '../ui/ChapterCard';
 import { THE_MISUNDERSTANDING_DIALOGUES } from '../../data/dialogueContent';
 
 export default function TheMisunderstanding() {
@@ -67,14 +68,14 @@ export default function TheMisunderstanding() {
       : "Ram & Mythili's Home";
 
   return (
-    <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-5">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="text-center"
       >
-        <h2 className="text-saffron font-bold text-2xl">The Misunderstanding</h2>
-        <p className="text-ink-light text-sm mt-1">{subtitle}</p>
+        <p className="font-ui text-xs tracking-wide text-ink-light">{subtitle}</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -108,16 +109,12 @@ export default function TheMisunderstanding() {
       </AnimatePresence>
 
       {isTransitioning && !currentDialogue.responses[0]?.nextDialogue && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-8"
-        >
-          <div className="text-danger text-lg font-semibold">
-            Mythili is gone.
-          </div>
-          <p className="text-ink-light text-sm mt-2">The friends arrive to pick up the pieces.</p>
-        </motion.div>
+        <ChapterCard
+          scene="THE_MISUNDERSTANDING"
+          headline="Mythili is gone."
+          subtext="The friends arrive to pick up the pieces."
+          color="text-danger"
+        />
       )}
     </div>
   );

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
+import ChapterCard from '../ui/ChapterCard';
 import { THE_BRIDGE_DIALOGUES } from '../../data/dialogueContent';
 
 export default function TheBridge() {
@@ -59,16 +60,14 @@ export default function TheBridge() {
   const isReconciliation = ['bridge_4', 'bridge_5'].includes(currentDialogueId);
 
   return (
-    <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-5">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="text-center"
       >
-        <h2 className={`font-bold text-2xl ${isReconciliation ? 'text-calm' : 'text-danger'}`}>
-          {isReconciliation ? 'Reconciliation' : 'The Bridge'}
-        </h2>
-        <p className="text-ink-light text-sm mt-1">
+        <p className="font-ui text-xs tracking-wide text-ink-light">
           {isReconciliation ? 'The truth comes out.' : 'The bridge — everything ends here.'}
         </p>
       </motion.div>
@@ -87,7 +86,7 @@ export default function TheBridge() {
               speaker={currentDialogue.speaker}
               text={currentDialogue.text}
               speakerColor={currentDialogue.speakerColor}
-              isPressured={!isReconciliation}
+
             />
             <ResponseOptions
               options={currentDialogue.responses.map((r) => ({
@@ -105,28 +104,12 @@ export default function TheBridge() {
       </AnimatePresence>
 
       {isTransitioning && !currentDialogue.responses[0]?.nextDialogue && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-8"
-        >
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 1 }}
-            className="text-calm text-2xl font-bold"
-          >
-            Together again.
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="text-ink-light text-sm mt-3"
-          >
-            The whole truth is finally out.
-          </motion.p>
-        </motion.div>
+        <ChapterCard
+          scene="THE_BRIDGE"
+          headline="Together again."
+          subtext="The whole truth is finally out."
+          color="text-calm"
+        />
       )}
     </div>
   );

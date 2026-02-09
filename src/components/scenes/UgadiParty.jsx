@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
+import ChapterCard from '../ui/ChapterCard';
 import PanicNotification from '../ui/PanicNotification';
 import PanicMeter from '../ui/PanicMeter';
 import { UGADI_PARTY_DIALOGUES } from '../../data/dialogueContent';
@@ -107,7 +108,7 @@ export default function UgadiParty() {
   const isMaggieScene = ['party_5', 'party_6', 'party_7', 'party_8'].includes(currentDialogueId);
 
   return (
-    <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-5">
       {/* Panic alert overlay */}
       <AnimatePresence>
         {currentPanicAlert && (
@@ -116,12 +117,12 @@ export default function UgadiParty() {
       </AnimatePresence>
 
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="text-center"
       >
-        <h2 className="text-saffron font-bold text-2xl">The Ugadi Party</h2>
-        <p className="text-ink-light text-sm mt-1">
+        <p className="font-ui text-xs tracking-wide text-ink-light">
           {isMaggieScene ? "Reddy's House — Everything Falls Apart" : "Reddy's House — Ugadi Celebration"}
         </p>
       </motion.div>
@@ -168,16 +169,12 @@ export default function UgadiParty() {
       </AnimatePresence>
 
       {isTransitioning && !currentDialogue.responses[0]?.nextDialogue && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-8"
-        >
-          <div className="text-danger text-lg font-semibold">
-            Dragged away at gunpoint...
-          </div>
-          <p className="text-ink-light text-sm mt-2">The smuggler's hideout awaits.</p>
-        </motion.div>
+        <ChapterCard
+          scene="UGADI_PARTY"
+          headline="Dragged away at gunpoint..."
+          subtext="The smuggler's hideout awaits."
+          color="text-danger"
+        />
       )}
     </div>
   );

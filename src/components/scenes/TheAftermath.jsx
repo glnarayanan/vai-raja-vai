@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
+import ChapterCard from '../ui/ChapterCard';
 import PanicMeter from '../ui/PanicMeter';
 import { THE_AFTERMATH_DIALOGUES } from '../../data/dialogueContent';
 
@@ -81,14 +82,14 @@ export default function TheAftermath() {
   const isFriendCalming = ['aftermath_2', 'aftermath_3', 'aftermath_4', 'aftermath_5'].includes(currentDialogueId);
 
   return (
-    <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-5">
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="text-center"
       >
-        <h2 className="text-saffron font-bold text-2xl">The Aftermath</h2>
-        <p className="text-ink-light text-sm mt-1">Chennai — Three Days Later</p>
+        <p className="font-ui text-xs tracking-wide text-ink-light">Chennai — Three Days Later</p>
       </motion.div>
 
       {/* Show panic meter during friend-calming dialogues */}
@@ -132,16 +133,12 @@ export default function TheAftermath() {
       </AnimatePresence>
 
       {isTransitioning && !currentDialogue.responses[0]?.nextDialogue && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-8"
-        >
-          <div className="text-saffron text-lg font-semibold">
-            The Ugadi party approaches...
-          </div>
-          <p className="text-ink-light text-sm mt-2">One chance to fix everything.</p>
-        </motion.div>
+        <ChapterCard
+          scene="THE_AFTERMATH"
+          headline="The Ugadi party approaches..."
+          subtext="One chance to fix everything."
+          color="text-saffron"
+        />
       )}
     </div>
   );
