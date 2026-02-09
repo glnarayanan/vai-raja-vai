@@ -430,19 +430,12 @@ const useGameStore = create(
         const friend = friends.find((f) => f.id === friendId);
         if (!friend) return 0;
 
-        // Lower reliability + higher alcohol = higher blurt risk
-        // Base risk from unreliability (0-100 scale, inverted)
-        const unreliability = 100 - friend.reliability;
-        // Alcohol amplifies risk (each drink adds ~10% to the risk pool)
-        const alcoholFactor = friend.alcohol_level * 10;
-        // Combined risk, capped at 95% — there's always a tiny chance they hold it together
-        const risk = clamp(
-          Math.round((unreliability + alcoholFactor) / 2),
-          0,
-          95
-        );
-
-        return risk;
+        // Base 40%, +20% if drunk (alcohol > 2), max 90%
+        let risk = 40;
+        if (friend.alcohol_level > 2) risk += 20;
+        // Lower reliability adds more risk
+        risk += Math.round((100 - friend.reliability) / 5);
+        return clamp(risk, 0, 90);
       },
 
       // =====================================================================
@@ -592,7 +585,28 @@ const useGameStore = create(
       },
 
       updateFriendAutonomous: () => {
-        // Phase 5: Pick random friend → random wife → set position + alert
+        const { friends, wives } = get();
+        // Pick a random non-passed-out friend
+        const activeFriends = friends.filter((f) => f.alcohol_level <= 5);
+        if (activeFriends.length === 0) return;
+
+        const friend = activeFriends[Math.floor(Math.random() * activeFriends.length)];
+        // Pick a random wife to wander toward
+        const targetWife = wives[Math.floor(Math.random() * wives.length)];
+
+        set((state) => ({
+          friendPositions: {
+            ...state.friendPositions,
+            [friend.id]: targetWife.id,
+          },
+          friendAlert: {
+            friendId: friend.id,
+            friendName: friend.name,
+            targetWifeId: targetWife.id,
+            targetWifeName: targetWife.name,
+            timestamp: Date.now(),
+          },
+        }));
       },
 
       resolveAmbush: (responseId) => {
@@ -623,7 +637,28 @@ const useGameStore = create(
       },
 
       interceptFriend: (friendId) => {
-        // Phase 5: Clear alert, +5 suspicion, increment intercepted count
+        const { currentWife } = get();
+        // Intercepting costs +5 suspicion to current conversation wife
+        const wifeId = currentWife || 'wife_mythili';
+        get().updateWifeSuspicion(wifeId, 5);
+
+        set((state) => ({
+          friendAlert: null,
+          friendInterceptedCount: state.friendInterceptedCount + 1,
+          friendPositions: {
+            ...state.friendPositions,
+            [friendId]: null, // send friend back to wandering
+          },
+          recapEvents: [
+            ...state.recapEvents,
+            {
+              type: 'FRIEND_INTERCEPTED',
+              text: `Intercepted ${state.friends.find((f) => f.id === friendId)?.name || friendId}`,
+              timestamp: Date.now(),
+              scene: state.currentScene,
+            },
+          ],
+        }));
       },
 
       // =====================================================================

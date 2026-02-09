@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
+import FriendAlert from '../ui/FriendAlert';
 import { chaoticPool } from '../../data/chaoticPool';
 
 const PARTY_DIALOGUES = [
@@ -353,18 +354,64 @@ export default function UgadiParty() {
   const validateConsistency = useGameStore((s) => s.validateConsistency);
   const saveGame = useGameStore((s) => s.saveGame);
   const getGlobalSuspicion = useGameStore((s) => s.getGlobalSuspicion);
+  const updateFriendAutonomous = useGameStore((s) => s.updateFriendAutonomous);
+  const interceptFriend = useGameStore((s) => s.interceptFriend);
+  const getChaoticBlurtRisk = useGameStore((s) => s.getChaoticBlurtRisk);
+  const friendAlert = useGameStore((s) => s.friendAlert);
   const foundPhotoRef = useRef(false);
+  const friendTimerRef = useRef(null);
+  const friendAlertTimeoutRef = useRef(null);
 
-  // Alcohol timer - increment every 30 seconds (game time accelerated)
+  // Alcohol timer - increment every 15 seconds
   useEffect(() => {
     alcoholTimerRef.current = setInterval(() => {
       const friendIds = ['friend_ayyappan', 'friend_vedham', 'friend_hegde', 'friend_reddy'];
       const randomFriend = friendIds[Math.floor(Math.random() * friendIds.length)];
       incrementAlcohol(randomFriend);
-    }, 30000);
+    }, 15000);
 
     return () => clearInterval(alcoholTimerRef.current);
   }, [incrementAlcohol]);
+
+  // Autonomous friend wandering timer — every 20-30s
+  useEffect(() => {
+    const scheduleNext = () => {
+      const delay = 20000 + Math.random() * 10000; // 20-30s
+      friendTimerRef.current = setTimeout(() => {
+        updateFriendAutonomous();
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+    return () => clearTimeout(friendTimerRef.current);
+  }, [updateFriendAutonomous]);
+
+  // Auto-dismiss friend alert after 5s (friend proceeds, may blurt)
+  useEffect(() => {
+    if (!friendAlert) {
+      clearTimeout(friendAlertTimeoutRef.current);
+      return;
+    }
+    friendAlertTimeoutRef.current = setTimeout(() => {
+      // Alert not intercepted — friend reaches wife, roll for blurt
+      const risk = getChaoticBlurtRisk(friendAlert.friendId);
+      if (Math.random() * 100 < risk) {
+        const subjects = Object.keys(chaoticPool);
+        const randomSubject = subjects[Math.floor(Math.random() * subjects.length)];
+        const friend = friends.find((f) => f.id === friendAlert.friendId);
+        const blurts = chaoticPool[randomSubject]?.[friend?.failureStyle] || [];
+        if (blurts.length > 0) {
+          const blurt = blurts[Math.floor(Math.random() * blurts.length)];
+          setBlurtMessage({ friend, blurt, subject: randomSubject });
+          updateWifeSuspicion(friendAlert.targetWifeId, 15);
+          setTimeout(() => setBlurtMessage(null), 3000);
+        }
+      }
+      // Clear the alert
+      useGameStore.setState({ friendAlert: null });
+    }, 5000);
+    return () => clearTimeout(friendAlertTimeoutRef.current);
+  }, [friendAlert, getChaoticBlurtRisk, friends, updateWifeSuspicion]);
 
   // Keep foundPhotoRef in sync with foundPhoto state
   useEffect(() => {
@@ -498,10 +545,34 @@ export default function UgadiParty() {
     ]
   );
 
+  const handleIntercept = useCallback(
+    (friendId) => {
+      clearTimeout(friendAlertTimeoutRef.current);
+      interceptFriend(friendId);
+      saveGame();
+    },
+    [interceptFriend, saveGame]
+  );
+
+  const handleIgnoreAlert = useCallback(() => {
+    // Do nothing — the 5s auto-dismiss will handle the blurt roll
+  }, []);
+
   const currentDialogue = PARTY_DIALOGUES.find((d) => d.id === currentDialogueId);
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
+      {/* Friend alert overlay */}
+      <AnimatePresence>
+        {friendAlert && (
+          <FriendAlert
+            alert={friendAlert}
+            onIntercept={handleIntercept}
+            onIgnore={handleIgnoreAlert}
+          />
+        )}
+      </AnimatePresence>
+
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

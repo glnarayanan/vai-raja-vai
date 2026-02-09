@@ -29,7 +29,21 @@ function DrinkIcons({ level }) {
   );
 }
 
-export default function FriendStatusPanel({ friends = [] }) {
+const WIFE_NAMES = {
+  wife_mythili: 'Mythili',
+  wife_ammini: 'Ammini',
+  wife_chamundi: 'Chamundi',
+  wife_janaki: 'Janaki',
+  wife_mrs_reddy: 'Mrs. Reddy',
+};
+
+function getPositionLabel(friendId, positions) {
+  const wifeId = positions?.[friendId];
+  if (!wifeId) return 'Wandering';
+  return `Near ${WIFE_NAMES[wifeId] || wifeId}`;
+}
+
+export default function FriendStatusPanel({ friends = [], friendPositions = {} }) {
   if (!friends.length) return null;
 
   return (
@@ -42,13 +56,16 @@ export default function FriendStatusPanel({ friends = [] }) {
         {friends.map((friend) => {
           return (
             <div key={friend.name} className="space-y-2">
-              {/* Name row */}
+              {/* Name and position row */}
               <div className="flex items-center justify-between">
                 <span
                   className="text-sm font-semibold"
                   style={{ color: { OVER_EXPLAINER: '#3B82F6', NERVOUS: '#F59E0B', AGREEABLE: '#14B8A6', LOOSE_CANNON: '#EF4444' }[friend.failureStyle] || '#14B8A6' }}
                 >
                   {friend.name}
+                </span>
+                <span className="text-[10px] font-medium text-white/50">
+                  {friend.alcohol_level > 5 ? 'Passed Out' : getPositionLabel(friend.id, friendPositions)}
                 </span>
               </div>
 
