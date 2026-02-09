@@ -591,8 +591,45 @@ const useGameStore = create(
         }));
       },
 
-      triggerChaosEvent: (eventId) => {
-        // Phase 7: Apply chaos event effects
+      triggerChaosEvent: (event) => {
+        if (!event) return;
+
+        // Apply effects
+        if (event.effect) {
+          if (event.effect.allWives) {
+            const { wives } = get();
+            wives.forEach((w) => {
+              get().updateWifeSuspicion(w.id, event.effect.suspicionDelta);
+            });
+          } else if (event.effect.targetWife) {
+            get().updateWifeSuspicion(event.effect.targetWife, event.effect.suspicionDelta);
+          }
+          if (event.effect.diamondRisk && Math.random() < 0.15) {
+            set({ diamondDiscovered: true });
+          }
+        }
+
+        set((state) => ({
+          currentChaosEvent: event,
+          chaosEventsTriggered: [
+            ...state.chaosEventsTriggered,
+            { eventId: event.id, scene: state.currentScene, timestamp: Date.now() },
+          ],
+          recapEvents: [
+            ...state.recapEvents,
+            {
+              type: 'CHAOS_EVENT',
+              text: `${event.title}: ${event.description}`,
+              timestamp: Date.now(),
+              scene: state.currentScene,
+            },
+          ],
+        }));
+
+        // Auto-clear after 3s
+        setTimeout(() => {
+          useGameStore.setState({ currentChaosEvent: null });
+        }, 3000);
       },
 
       updateFriendAutonomous: () => {

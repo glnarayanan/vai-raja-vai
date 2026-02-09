@@ -5,8 +5,10 @@ import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
 import FriendAlert from '../ui/FriendAlert';
 import AmbushEvent from '../ui/AmbushEvent';
+import ChaosNotification from '../ui/ChaosNotification';
 import { chaoticPool } from '../../data/chaoticPool';
 import { getAmbushDialogue } from '../../data/ambushDialogues';
+import { pickChaosEvent, CHAOS_FLOOR } from '../../data/chaosEvents';
 
 const PARTY_DIALOGUES = [
   {
@@ -368,6 +370,10 @@ export default function UgadiParty() {
   const friendTimerRef = useRef(null);
   const friendAlertTimeoutRef = useRef(null);
   const ambushTimerRef = useRef(null);
+  const chaosTimerRef = useRef(null);
+  const triggerChaosEvent = useGameStore((s) => s.triggerChaosEvent);
+  const chaosEventsTriggered = useGameStore((s) => s.chaosEventsTriggered);
+  const currentChaosEvent = useGameStore((s) => s.currentChaosEvent);
 
   // Alcohol timer - increment every 15 seconds
   useEffect(() => {
@@ -444,6 +450,39 @@ export default function UgadiParty() {
   useEffect(() => {
     if (!currentAmbush) setAmbushDialogue(null);
   }, [currentAmbush]);
+
+  // Chaos event timer — fires at random intervals, ensures chaos floor
+  useEffect(() => {
+    const triggeredIds = chaosEventsTriggered
+      .filter((e) => e.scene === 'UGADI_PARTY')
+      .map((e) => e.eventId);
+    const floor = CHAOS_FLOOR.UGADI_PARTY || 3;
+
+    const scheduleChaos = () => {
+      const delay = 25000 + Math.random() * 35000; // 25-60s
+      chaosTimerRef.current = setTimeout(() => {
+        const event = pickChaosEvent('UGADI_PARTY', triggeredIds);
+        if (event) {
+          triggerChaosEvent(event);
+        }
+        scheduleChaos();
+      }, delay);
+    };
+
+    // If below chaos floor, fire faster
+    if (triggeredIds.length < floor) {
+      const urgentDelay = 10000 + Math.random() * 10000;
+      chaosTimerRef.current = setTimeout(() => {
+        const event = pickChaosEvent('UGADI_PARTY', triggeredIds);
+        if (event) triggerChaosEvent(event);
+        scheduleChaos();
+      }, urgentDelay);
+    } else {
+      scheduleChaos();
+    }
+
+    return () => clearTimeout(chaosTimerRef.current);
+  }, [triggerChaosEvent, chaosEventsTriggered]);
 
   // Keep foundPhotoRef in sync with foundPhoto state
   useEffect(() => {
@@ -620,6 +659,13 @@ export default function UgadiParty() {
             ambush={ambushDialogue}
             onResolve={handleAmbushResolve}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Chaos event notification */}
+      <AnimatePresence>
+        {currentChaosEvent && (
+          <ChaosNotification event={currentChaosEvent} />
         )}
       </AnimatePresence>
 

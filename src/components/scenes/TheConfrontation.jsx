@@ -4,7 +4,9 @@ import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
 import AmbushEvent from '../ui/AmbushEvent';
+import ChaosNotification from '../ui/ChaosNotification';
 import { getAmbushDialogue } from '../../data/ambushDialogues';
+import { pickChaosEvent, CHAOS_FLOOR } from '../../data/chaosEvents';
 
 const CONFRONTATION_DIALOGUES = [
   {
@@ -238,6 +240,10 @@ export default function TheConfrontation() {
   const triggerWifeAmbush = useGameStore((s) => s.triggerWifeAmbush);
   const resolveAmbush = useGameStore((s) => s.resolveAmbush);
   const currentAmbush = useGameStore((s) => s.currentAmbush);
+  const triggerChaosEvent = useGameStore((s) => s.triggerChaosEvent);
+  const chaosEventsTriggered = useGameStore((s) => s.chaosEventsTriggered);
+  const currentChaosEvent = useGameStore((s) => s.currentChaosEvent);
+  const chaosTimerRef = useRef(null);
 
   // Wife ambush timer — higher frequency in confrontation (30-60s)
   useEffect(() => {
@@ -262,6 +268,36 @@ export default function TheConfrontation() {
   useEffect(() => {
     if (!currentAmbush) setAmbushDialogue(null);
   }, [currentAmbush]);
+
+  // Chaos event timer
+  useEffect(() => {
+    const triggeredIds = chaosEventsTriggered
+      .filter((e) => e.scene === 'THE_CONFRONTATION')
+      .map((e) => e.eventId);
+    const floor = CHAOS_FLOOR.THE_CONFRONTATION || 2;
+
+    const scheduleChaos = () => {
+      const delay = 20000 + Math.random() * 25000;
+      chaosTimerRef.current = setTimeout(() => {
+        const event = pickChaosEvent('THE_CONFRONTATION', triggeredIds);
+        if (event) triggerChaosEvent(event);
+        scheduleChaos();
+      }, delay);
+    };
+
+    if (triggeredIds.length < floor) {
+      const urgentDelay = 8000 + Math.random() * 8000;
+      chaosTimerRef.current = setTimeout(() => {
+        const event = pickChaosEvent('THE_CONFRONTATION', triggeredIds);
+        if (event) triggerChaosEvent(event);
+        scheduleChaos();
+      }, urgentDelay);
+    } else {
+      scheduleChaos();
+    }
+
+    return () => clearTimeout(chaosTimerRef.current);
+  }, [triggerChaosEvent, chaosEventsTriggered]);
 
   const handleAmbushResolve = useCallback(
     (option) => {
@@ -347,6 +383,13 @@ export default function TheConfrontation() {
             ambush={ambushDialogue}
             onResolve={handleAmbushResolve}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Chaos event notification */}
+      <AnimatePresence>
+        {currentChaosEvent && (
+          <ChaosNotification event={currentChaosEvent} />
         )}
       </AnimatePresence>
 
