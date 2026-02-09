@@ -87,6 +87,9 @@ const createInitialState = () => ({
     mythiliArrival: null,
     bridgeApproach: null,
     bridgeDialogue: null,
+    mythiliCall: null,
+    mrsNairResponse: null,
+    smugglerEvidence: null,
   },
 
   // Fact ledger (simplified — no per-wife toldTo)
@@ -154,7 +157,7 @@ const useGameStore = create(
       },
 
       calmFriend: (friendId, method) => {
-        const reduction = method === "threaten" ? 20 : method === "reassure" ? 30 : 25;
+        const reduction = method === "threaten" ? 15 : method === "reassure" ? 20 : 18;
         set((state) => ({
           friends: state.friends.map((f) =>
             f.id === friendId
@@ -179,9 +182,9 @@ const useGameStore = create(
         const friend = friends.find((f) => f.id === friendId);
         if (!friend) return { leaked: false, leakText: null };
 
-        // panic>80 = guaranteed leak, panic>50 = possible, else no leak
-        if (friend.panic <= 50) return { leaked: false, leakText: null };
-        if (friend.panic > 80 || Math.random() < (friend.panic - 50) / 50) {
+        // panic>70 = guaranteed leak, panic>40 = possible, else no leak
+        if (friend.panic <= 40) return { leaked: false, leakText: null };
+        if (friend.panic > 70 || Math.random() < (friend.panic - 40) / 40) {
           const leakTexts = {
             OVER_EXPLAINER: "Actually, let me explain — it wasn't really what it looked like in Bangalore...",
             NERVOUS: "I... we... nothing happened! Why would you even... I need water.",
@@ -300,9 +303,9 @@ const useGameStore = create(
       // =====================================================================
       determineEndingQuality: () => {
         const { mythiliSuspicion } = get();
-        if (mythiliSuspicion < 20) return "CINEMATIC";
-        if (mythiliSuspicion < 45) return "RELIEVED";
-        if (mythiliSuspicion < 70) return "BY_A_THREAD";
+        if (mythiliSuspicion < 40) return "CINEMATIC";
+        if (mythiliSuspicion < 60) return "RELIEVED";
+        if (mythiliSuspicion < 85) return "BY_A_THREAD";
         return "BARELY_MADE_IT";
       },
 
