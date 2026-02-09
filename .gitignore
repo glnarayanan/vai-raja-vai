@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 # macOS
 .DS_Store
+node_modules/
+dist/
