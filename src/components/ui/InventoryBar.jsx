@@ -12,7 +12,7 @@ function InventoryItem({ item, onUse }) {
 
   return (
     <motion.button
-      className={`relative flex flex-col items-center gap-1 rounded-xl border px-3 py-2 transition-colors duration-200 ${
+      className={`relative flex min-h-[44px] min-w-[44px] flex-col items-center gap-1 rounded-lg border px-3 py-2 transition-colors duration-200 ${
         isEmpty
           ? 'cursor-not-allowed border-ink-faint/20 bg-ink-faint/5 opacity-40'
           : isDiamond
@@ -25,11 +25,11 @@ function InventoryItem({ item, onUse }) {
       disabled={isEmpty}
     >
       <span className="text-2xl">{iconData.emoji}</span>
-      <span className="text-[10px] font-medium text-ink-light">{iconData.label}</span>
+      <span className="font-ui text-[10px] font-medium text-ink-light">{iconData.label}</span>
 
       {/* Uses remaining badge */}
       <span
-        className={`absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+        className={`absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full font-ui text-[10px] font-bold ${
           isEmpty
             ? 'bg-ink-faint/30 text-ink-light'
             : 'bg-calm text-paper'
@@ -40,7 +40,7 @@ function InventoryItem({ item, onUse }) {
 
       {/* Diamond risk indicator */}
       {isDiamond && !isEmpty && (
-        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[9px] font-bold text-danger">
+        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 font-ui text-[9px] font-bold text-danger">
           RISK
         </span>
       )}
@@ -49,6 +49,8 @@ function InventoryItem({ item, onUse }) {
 }
 
 export default function InventoryBar({ inventory = [], onUseItem }) {
+  if (inventory.length === 0) return null;
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink-faint/30 bg-paper">
       <div className="mx-auto flex max-w-3xl items-center px-4 py-3">

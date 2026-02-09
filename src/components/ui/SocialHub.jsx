@@ -18,16 +18,17 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
 
   return (
     <div className="relative w-full border-b border-ink-faint/30 bg-surface">
-      <div className="mx-auto max-w-3xl px-4 py-3">
+      <div className="mx-auto max-w-3xl overflow-x-auto px-4 py-3">
         <div className="flex gap-6">
           {/* Mythili */}
           <div className="flex shrink-0 items-start gap-1">
-            <span className="mr-2 mt-3 text-[10px] font-semibold uppercase tracking-widest text-danger/60">
+            <span className="mr-2 mt-3 font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-light">
               Wife
             </span>
             <button
               className="cursor-pointer bg-transparent p-0"
               onClick={() => handleNpcClick({ name: 'Mythili', suspicion: mythiliSuspicion, color: '#B91C1C' })}
+              aria-label={`Mythili — suspicion ${mythiliSuspicion}%`}
             >
               <NpcAvatar
                 name="Mythili"
@@ -46,7 +47,7 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
           {/* Friends */}
           {friends.length > 0 && (
             <div className="flex shrink-0 items-start gap-1">
-              <span className="mr-2 mt-3 text-[10px] font-semibold uppercase tracking-widest text-calm/60">
+              <span className="mr-2 mt-3 font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-light">
                 Friends
               </span>
               <div className="flex gap-3">
@@ -55,6 +56,7 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
                     key={friend.name}
                     className="cursor-pointer bg-transparent p-0"
                     onClick={() => handleNpcClick(friend)}
+                    aria-label={`${friend.name}${friend.panic > 0 ? ` — panic ${friend.panic}%` : ''}`}
                   >
                     <NpcAvatar
                       name={friend.name}
@@ -82,21 +84,21 @@ export default function SocialHub({ mythiliSuspicion = 0, friends = [] }) {
             transition={{ duration: 0.15 }}
           >
             <div className="flex items-center gap-3">
-              <span className="font-semibold" style={{ color: selectedNpc.color || FRIEND_COLORS[selectedNpc.failureStyle] || '#0F766E' }}>
+              <span className="font-ui font-semibold" style={{ color: selectedNpc.color || FRIEND_COLORS[selectedNpc.failureStyle] || '#0F766E' }}>
                 {selectedNpc.name}
               </span>
               {selectedNpc.suspicion !== undefined && (
-                <span className="text-xs text-ink-light">
+                <span className="font-ui text-xs text-ink-light">
                   Suspicion: {selectedNpc.suspicion}%
                 </span>
               )}
               {selectedNpc.panic !== undefined && selectedNpc.panic > 0 && (
-                <span className="text-xs text-ink-light">
+                <span className="font-ui text-xs text-ink-light">
                   Panic: {selectedNpc.panic}%
                 </span>
               )}
               {selectedNpc.calmed && (
-                <span className="text-xs text-calm">Calmed</span>
+                <span className="font-ui text-xs text-calm">Calmed</span>
               )}
             </div>
           </motion.div>

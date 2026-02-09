@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 function getBarColor(suspicion) {
@@ -14,13 +15,25 @@ function getTextColor(suspicion) {
 
 export default function SuspicionBar({ suspicion = 0 }) {
   const clampedSuspicion = Math.max(0, Math.min(100, suspicion));
+  const prevSuspicion = useRef(clampedSuspicion);
+  const [isSpiking, setIsSpiking] = useState(false);
+
+  useEffect(() => {
+    if (clampedSuspicion > prevSuspicion.current) {
+      setIsSpiking(true);
+      const timer = setTimeout(() => setIsSpiking(false), 600);
+      prevSuspicion.current = clampedSuspicion;
+      return () => clearTimeout(timer);
+    }
+    prevSuspicion.current = clampedSuspicion;
+  }, [clampedSuspicion]);
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs font-semibold uppercase tracking-wider text-ink-light">
+      <span className="font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-faint">
         Suspicion
       </span>
-      <div className="relative h-3 w-36 overflow-hidden rounded-full bg-ink-faint/20 sm:w-48">
+      <div className="relative h-1.5 w-28 overflow-hidden rounded-full bg-ink-faint/15 sm:w-40">
         <motion.div
           className={`absolute inset-y-0 left-0 rounded-full ${getBarColor(clampedSuspicion)}`}
           initial={{ width: 0 }}
@@ -28,11 +41,13 @@ export default function SuspicionBar({ suspicion = 0 }) {
           transition={{ duration: 0.4, ease: 'easeOut' }}
         />
       </div>
-      <span
-        className={`min-w-[2.5rem] text-right font-mono text-sm font-bold transition-colors duration-300 ${getTextColor(clampedSuspicion)}`}
+      <motion.span
+        className={`min-w-[2rem] text-right font-ui text-xs font-bold tabular-nums ${getTextColor(clampedSuspicion)}`}
+        animate={isSpiking ? { scale: [1, 1.3, 1], opacity: [1, 0.7, 1] } : { scale: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
       >
         {clampedSuspicion}%
-      </span>
+      </motion.span>
     </div>
   );
 }

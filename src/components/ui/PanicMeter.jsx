@@ -10,14 +10,14 @@ export default function PanicMeter({ friends = [] }) {
   if (friends.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-ink-faint/20 bg-surface p-3">
-      <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-light">
+    <div className="rounded-lg border border-ink-faint/20 bg-surface p-3">
+      <p className="mb-2 font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-light">
         Friend Panic
       </p>
       <div className="flex flex-col gap-2">
         {friends.map((friend) => (
           <div key={friend.id} className="flex items-center gap-2">
-            <span className="w-16 truncate text-xs font-medium text-ink-light">
+            <span className="w-16 truncate font-ui text-xs font-medium text-ink-light">
               {friend.name.split(' ')[0]}
             </span>
             <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-ink-faint/20">
@@ -28,11 +28,11 @@ export default function PanicMeter({ friends = [] }) {
                 transition={{ duration: 0.4, ease: 'easeOut' }}
               />
             </div>
-            <span className="w-8 text-right font-mono text-[10px] font-bold text-ink">
+            <span className="w-8 text-right font-ui text-[10px] font-bold tabular-nums text-ink">
               {friend.panic}
             </span>
             {friend.calmed && (
-              <span className="text-[10px] text-calm">OK</span>
+              <span className="font-ui text-[10px] font-semibold text-calm">OK</span>
             )}
           </div>
         ))}

@@ -38,10 +38,10 @@ export default function ResponseOptions({ options = [], onSelect }) {
             key={option.id}
             variants={itemVariants}
             whileTap={isDisabled ? {} : { scale: 0.98 }}
-            className={`cursor-pointer rounded-xl border px-5 py-3.5 text-left text-sm font-medium transition-colors duration-200 ${
+            className={`cursor-pointer rounded-lg border px-5 py-3.5 text-left font-body text-[15px] leading-relaxed transition-colors duration-200 ${
               isDisabled
                 ? 'cursor-not-allowed border-ink-faint/20 text-ink-faint'
-                : 'border-ink-faint/40 bg-paper text-ink hover:bg-surface'
+                : 'border-ink-faint/30 bg-paper text-ink hover:border-saffron/40 hover:bg-surface active:bg-surface/80'
             }`}
             onClick={() => !isDisabled && onSelect?.(option.id)}
             disabled={isDisabled}

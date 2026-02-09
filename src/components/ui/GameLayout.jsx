@@ -10,6 +10,8 @@ export default function GameLayout({
   inventory = [],
   onUseItem,
 }) {
+  const hasInventory = inventory.length > 0;
+
   return (
     <div className="relative flex min-h-screen flex-col bg-paper">
       {/* Sticky header */}
@@ -19,7 +21,7 @@ export default function GameLayout({
       <SocialHub mythiliSuspicion={mythiliSuspicion} friends={friends} />
 
       {/* Main content area */}
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 pb-24">
+      <main className={`mx-auto w-full max-w-3xl flex-1 px-4 py-6 ${hasInventory ? 'pb-24' : 'pb-8'}`}>
         {children}
       </main>
 

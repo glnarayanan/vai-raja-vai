@@ -5,8 +5,8 @@ function getPanicColor(panic) {
 }
 
 function getSuspicionBorder(suspicion) {
-  if (suspicion === undefined || suspicion === null) return 'border-ink-faint';
-  if (suspicion < 30) return 'border-ink-faint';
+  if (suspicion === undefined || suspicion === null) return 'border-transparent';
+  if (suspicion < 30) return 'border-transparent';
   if (suspicion < 85) return 'border-saffron';
   return 'border-danger';
 }
@@ -27,8 +27,8 @@ export default function NpcAvatar({
       <div className="relative">
         {/* Avatar circle */}
         <div
-          className={`relative flex h-12 w-12 items-center justify-center rounded-full border-2 text-lg font-bold transition-colors duration-300 ${
-            isActive ? 'border-saffron' : hasSuspicion ? getSuspicionBorder(suspicion) : 'border-ink-faint'
+          className={`relative flex h-12 w-12 items-center justify-center rounded-full border-2 font-ui text-lg font-bold transition-[border-color] duration-300 ${
+            isActive ? 'border-saffron' : hasSuspicion ? getSuspicionBorder(suspicion) : 'border-transparent'
           }`}
           style={{ backgroundColor: color + '33', color }}
         >
@@ -44,7 +44,7 @@ export default function NpcAvatar({
       </div>
 
       {/* Name label */}
-      <span className="max-w-[4rem] truncate text-center text-[11px] font-medium text-ink-light">
+      <span className="max-w-[4rem] truncate text-center font-ui text-[11px] font-medium text-ink-light">
         {name}
       </span>
     </div>
