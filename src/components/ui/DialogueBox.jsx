@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 export default function DialogueBox({
   speaker,
   text,
-  speakerColor = '#14B8A6',
+  speakerColor = '#0F766E',
   isAmbush = false,
   isPressured = false,
 }) {
@@ -46,22 +46,13 @@ export default function DialogueBox({
 
   return (
     <motion.div
-      className={`relative overflow-hidden rounded-2xl border bg-kollywood-deep/80 p-5 backdrop-blur-sm ${
-        isAmbush ? 'border-kollywood-saffron/60' : 'border-white/10'
+      className={`relative overflow-hidden rounded-2xl border bg-surface p-6 ${
+        isAmbush ? 'border-saffron' : 'border-ink-faint/30'
       }`}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
     >
-      {/* Ambush warm glow border */}
-      {isAmbush && (
-        <motion.div
-          className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-kollywood-saffron"
-          animate={{ opacity: [0.3, 0.8, 0.3] }}
-          transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
-        />
-      )}
-
       {/* Speaker name */}
       {speaker && (
         <div className="mb-2 flex items-center gap-2">
@@ -79,11 +70,11 @@ export default function DialogueBox({
       )}
 
       {/* Dialogue text */}
-      <p className="min-h-[3rem] text-base leading-relaxed text-white/90">
+      <p className="min-h-[3rem] text-base leading-relaxed text-ink">
         {displayedText}
         {isTyping && (
           <motion.span
-            className="ml-0.5 inline-block h-4 w-0.5 align-middle bg-white/60"
+            className="ml-0.5 inline-block h-4 w-0.5 align-middle bg-ink/40"
             animate={{ opacity: [1, 0] }}
             transition={{ repeat: Infinity, duration: 0.6 }}
           />
