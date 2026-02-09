@@ -5,69 +5,31 @@ import GameLayout from './components/ui/GameLayout';
 import SceneManager from './components/scenes/SceneManager';
 import EndingScreen from './components/endings/EndingScreen';
 
-// Map store ending IDs to EndingScreen component keys
-const ENDING_MAP = {
-  CLEAN_SWEEP: 'cleanSweep',
-  RIVERBED_RUN: 'riverbedRun',
-  INTERNATIONAL_FUGITIVE: 'internationalFugitive',
-  SURVIVED_SOMEHOW: 'survivedSomehow',
-  BUSTED: 'busted',
-  FULL_CHAOS: 'fullChaos',
-};
-
-// Map store inventory items to InventoryBar format
-const mapInventoryForUI = (inventory) =>
-  inventory
-    .filter((item) => item.acquired)
-    .map((item) => {
-      const typeMap = {
-        item_diamond: 'diamond',
-        item_phone: 'phone',
-        item_photo: 'photo',
-      };
-      const maxUsesMap = {
-        item_phone: 3,
-        item_photo: 1,
-        item_diamond: 99,
-      };
-      const maxUses = item.maxUses ?? maxUsesMap[item.id] ?? 99;
-      return {
-        id: item.id,
-        type: typeMap[item.id] || item.id,
-        usesRemaining: Math.max(0, maxUses - item.usedCount),
-        name: item.name,
-      };
-    });
-
 const SCENE_TITLES = {
-  THE_RETURN: 'The Return',
+  THE_FLIGHT: 'The Flight',
+  THE_MISUNDERSTANDING: 'The Misunderstanding',
+  BANGALORE_BIRTHDAY: 'Bangalore Birthday',
+  THE_AFTERMATH: 'The Aftermath',
   UGADI_PARTY: 'The Ugadi Party',
   THE_CONFRONTATION: 'The Confrontation',
-  RIVERBED_FINALE: 'The Riverbed Finale',
+  THE_BRIDGE: 'The Bridge',
 };
 
 export default function App() {
   const currentScene = useGameStore((s) => s.currentScene);
-  const ending = useGameStore((s) => s.ending);
-  const wives = useGameStore((s) => s.wives);
+  const endingQuality = useGameStore((s) => s.endingQuality);
+  const mythiliSuspicion = useGameStore((s) => s.mythiliSuspicion);
   const friends = useGameStore((s) => s.friends);
   const inventory = useGameStore((s) => s.inventory);
-  const playerStats = useGameStore((s) => s.playerStats);
-  const globalSuspicion = useGameStore((s) => {
-    if (!s.wives || s.wives.length === 0) return 0;
-    const total = s.wives.reduce((sum, w) => sum + (w.suspicion || 0), 0);
-    return Math.round(total / s.wives.length);
-  });
 
   const startNewGame = useGameStore((s) => s.startNewGame);
   const loadGame = useGameStore((s) => s.loadGame);
   const hasSaveGame = useGameStore((s) => s.hasSaveGame);
-  const useEvidence = useGameStore((s) => s.useEvidence);
   const saveGame = useGameStore((s) => s.saveGame);
+  const useEvidence = useGameStore((s) => s.useEvidence);
 
   const [hasSaved, setHasSaved] = useState(false);
 
-  // Check for saved game on mount
   useEffect(() => {
     setHasSaved(hasSaveGame());
   }, [hasSaveGame]);
@@ -96,7 +58,15 @@ export default function App() {
     [useEvidence, saveGame]
   );
 
-  const mappedInventory = mapInventoryForUI(inventory);
+  // Map inventory for InventoryBar (simplified for v3)
+  const mappedInventory = inventory
+    .filter((item) => item.acquired)
+    .map((item) => ({
+      id: item.id,
+      type: item.id === 'item_diamond' ? 'diamond' : item.id === 'item_phone' ? 'phone' : item.id,
+      usesRemaining: 99,
+      name: item.name,
+    }));
 
   // Title Screen
   if (currentScene === 'TITLE') {
@@ -110,27 +80,11 @@ export default function App() {
   }
 
   // Ending Screen
-  if (currentScene === 'ENDING' && ending) {
-    const endingStats = {
-      liesTotal: useGameStore.getState().factLedger?.length || 0,
-      suspicionPeak: Math.max(...(wives.map((w) => w.suspicion) || [0])),
-      contradictions: playerStats.doubleDownCount + playerStats.diversionCount,
-      technicalityCount: playerStats.technicalityCount,
-      confidence: playerStats.confidence,
-    };
-
+  if (currentScene === 'ENDING' && endingQuality) {
     return (
       <EndingScreen
-        ending={ENDING_MAP[ending] || ending}
+        endingQuality={endingQuality}
         onPlayAgain={handlePlayAgain}
-        stats={endingStats}
-        technicalities={[
-          "Temple Run, not Temple!",
-          "The pub inside the temple",
-          "Champagne-flavored curd rice",
-          "Spiritual theme bar",
-          "Budget luxury accommodation",
-        ]}
       />
     );
   }
@@ -139,8 +93,7 @@ export default function App() {
   return (
     <GameLayout
       sceneTitle={SCENE_TITLES[currentScene] || currentScene}
-      globalSuspicion={globalSuspicion}
-      wives={wives}
+      mythiliSuspicion={mythiliSuspicion}
       friends={friends}
       inventory={mappedInventory}
       onUseItem={handleUseItem}

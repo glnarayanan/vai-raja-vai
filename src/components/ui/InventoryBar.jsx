@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ITEM_ICONS = {
   phone: { emoji: '\uD83D\uDCF1', label: 'Phone' },
   diamond: { emoji: '\uD83D\uDC8E', label: 'Diamond' },
-  photo: { emoji: '\uD83D\uDCF7', label: 'Photo' },
 };
 
 function InventoryItem({ item, onUse }) {

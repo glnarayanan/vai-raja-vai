@@ -1,43 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CleanSweep from './CleanSweep';
-import RiverbedRun from './RiverbedRun';
-import InternationalFugitive from './InternationalFugitive';
-import SurvivedSomehow from './SurvivedSomehow';
-import Busted from './Busted';
-import FullChaos from './FullChaos';
-import DisasterRecap from './DisasterRecap';
+import { useGameStore } from '../../store/gameStore';
+import BridgeReconciliation from './BridgeReconciliation';
+import EndingRecap from './EndingRecap';
 
-const ENDINGS = {
-  cleanSweep: CleanSweep,
-  riverbedRun: RiverbedRun,
-  internationalFugitive: InternationalFugitive,
-  survivedSomehow: SurvivedSomehow,
-  busted: Busted,
-  fullChaos: FullChaos,
-};
-
-export default function EndingScreen({ ending, onPlayAgain, stats, technicalities }) {
+export default function EndingScreen({ endingQuality, onPlayAgain }) {
   const [showRecap, setShowRecap] = useState(false);
-  const EndingComponent = ENDINGS[ending];
-
-  if (!EndingComponent) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-kollywood-midnight">
-        <div className="text-center">
-          <p className="mb-4 text-xl text-white/60">
-            Unknown ending: <span className="font-mono text-kollywood-magenta">{ending}</span>
-          </p>
-          <button
-            onClick={onPlayAgain}
-            className="cursor-pointer rounded-lg bg-kollywood-saffron px-8 py-3 font-bold text-kollywood-deep transition-colors duration-300 hover:bg-kollywood-saffron/90"
-          >
-            Return to Menu
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const getEndingRecap = useGameStore((s) => s.getEndingRecap);
+  const stats = getEndingRecap();
 
   return (
     <div className="relative">
@@ -50,7 +20,7 @@ export default function EndingScreen({ ending, onPlayAgain, stats, technicalitie
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <DisasterRecap
+            <EndingRecap
               onBack={() => setShowRecap(false)}
               onPlayAgain={onPlayAgain}
             />
@@ -63,10 +33,10 @@ export default function EndingScreen({ ending, onPlayAgain, stats, technicalitie
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <EndingComponent
+            <BridgeReconciliation
+              quality={endingQuality}
               onPlayAgain={onPlayAgain}
               stats={stats}
-              technicalities={technicalities}
             />
 
             {/* Recap toggle button */}
@@ -79,7 +49,7 @@ export default function EndingScreen({ ending, onPlayAgain, stats, technicalitie
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              View Your Chaos Recap
+              View Your Journey
             </motion.button>
           </motion.div>
         )}

@@ -3,20 +3,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
-import { THE_CONFRONTATION_DIALOGUES } from '../../data/dialogueContent';
+import { BANGALORE_BIRTHDAY_DIALOGUES } from '../../data/dialogueContent';
 
-export default function TheConfrontation() {
-  const [currentDialogueId, setCurrentDialogueId] = useState('confrontation_1');
+export default function BangaloreBirthday() {
+  const [currentDialogueId, setCurrentDialogueId] = useState('birthday_1');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const addFact = useGameStore((s) => s.addFact);
   const updateMythiliSuspicion = useGameStore((s) => s.updateMythiliSuspicion);
   const setChoice = useGameStore((s) => s.setChoice);
+  const updateFriendPanic = useGameStore((s) => s.updateFriendPanic);
   const transitionScene = useGameStore((s) => s.transitionScene);
   const saveGame = useGameStore((s) => s.saveGame);
   const trackRecapEvent = useGameStore((s) => s.trackRecapEvent);
 
-  const currentDialogue = THE_CONFRONTATION_DIALOGUES.find((d) => d.id === currentDialogueId);
+  const currentDialogue = BANGALORE_BIRTHDAY_DIALOGUES.find((d) => d.id === currentDialogueId);
 
   const handleResponse = useCallback(
     (response) => {
@@ -31,7 +32,18 @@ export default function TheConfrontation() {
         trackRecapEvent({
           type: 'CHOICE',
           text: `${response.choiceKey}: ${response.choiceValue}`,
-          scene: 'THE_CONFRONTATION',
+          scene: 'BANGALORE_BIRTHDAY',
+        });
+      }
+      // Initialize friend panic from body disposal choice
+      if (response.panicChange) {
+        Object.entries(response.panicChange).forEach(([friendId, amount]) => {
+          updateFriendPanic(friendId, amount);
+        });
+        trackRecapEvent({
+          type: 'PANIC_INIT',
+          text: 'Friend panic levels initialized from body disposal',
+          scene: 'BANGALORE_BIRTHDAY',
         });
       }
       saveGame();
@@ -46,20 +58,26 @@ export default function TheConfrontation() {
         setIsTransitioning(true);
         trackRecapEvent({
           type: 'SCENE_END',
-          text: 'Mythili swallowed the diamonds. Running to the bridge.',
-          scene: 'THE_CONFRONTATION',
+          text: 'Bangalore nightmare is over. Back to Chennai.',
+          scene: 'BANGALORE_BIRTHDAY',
         });
         setTimeout(() => {
-          transitionScene('THE_BRIDGE');
+          transitionScene('THE_AFTERMATH');
         }, 1500);
       }
     },
-    [addFact, updateMythiliSuspicion, setChoice, transitionScene, saveGame, trackRecapEvent]
+    [addFact, updateMythiliSuspicion, setChoice, updateFriendPanic, transitionScene, saveGame, trackRecapEvent]
   );
 
   if (!currentDialogue) return null;
 
-  const isMythiliScene = ['confrontation_4', 'confrontation_5', 'confrontation_6'].includes(currentDialogueId);
+  const getSubtitle = () => {
+    if (currentDialogueId === 'birthday_1') return 'Chennai — Ram\'s Apartment';
+    if (['birthday_2', 'birthday_3'].includes(currentDialogueId)) return 'Bangalore — Hotel Room';
+    if (currentDialogueId === 'birthday_4') return 'Bangalore — Parking Lot';
+    if (currentDialogueId === 'birthday_5') return 'Highway — Returning from Riverbed';
+    return 'Highway — Back to Chennai';
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
@@ -68,10 +86,8 @@ export default function TheConfrontation() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Confrontation</h2>
-        <p className="text-white/50 text-sm mt-1">
-          {isMythiliScene ? "Smuggler's Hideout — Mythili Arrives" : "Smuggler's Hideout — Captive"}
-        </p>
+        <h2 className="text-kollywood-saffron font-bold text-2xl">Bangalore Birthday</h2>
+        <p className="text-white/50 text-sm mt-1">{getSubtitle()}</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -88,7 +104,6 @@ export default function TheConfrontation() {
               speaker={currentDialogue.speaker}
               text={currentDialogue.text}
               speakerColor={currentDialogue.speakerColor}
-              isPressured={true}
             />
             <ResponseOptions
               options={currentDialogue.responses.map((r) => ({
@@ -112,13 +127,13 @@ export default function TheConfrontation() {
           className="text-center py-8"
         >
           <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 0.5, repeat: Infinity }}
-            className="text-red-500 text-xl font-bold"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-red-400 text-lg font-semibold"
           >
-            RUN.
+            The secret is buried. For now.
           </motion.div>
-          <p className="text-white/50 text-sm mt-2">Mythili is on the bridge.</p>
+          <p className="text-white/50 text-sm mt-2">Three days later...</p>
         </motion.div>
       )}
     </div>

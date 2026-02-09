@@ -3,35 +3,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
-import { THE_CONFRONTATION_DIALOGUES } from '../../data/dialogueContent';
+import { THE_BRIDGE_DIALOGUES } from '../../data/dialogueContent';
 
-export default function TheConfrontation() {
-  const [currentDialogueId, setCurrentDialogueId] = useState('confrontation_1');
+export default function TheBridge() {
+  const [currentDialogueId, setCurrentDialogueId] = useState('bridge_1');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const addFact = useGameStore((s) => s.addFact);
-  const updateMythiliSuspicion = useGameStore((s) => s.updateMythiliSuspicion);
   const setChoice = useGameStore((s) => s.setChoice);
-  const transitionScene = useGameStore((s) => s.transitionScene);
+  const triggerEnding = useGameStore((s) => s.triggerEnding);
   const saveGame = useGameStore((s) => s.saveGame);
   const trackRecapEvent = useGameStore((s) => s.trackRecapEvent);
 
-  const currentDialogue = THE_CONFRONTATION_DIALOGUES.find((d) => d.id === currentDialogueId);
+  const currentDialogue = THE_BRIDGE_DIALOGUES.find((d) => d.id === currentDialogueId);
 
   const handleResponse = useCallback(
     (response) => {
       if (response.fact) {
         addFact(response.fact);
       }
-      if (response.suspicionChange) {
-        updateMythiliSuspicion(response.suspicionChange);
-      }
       if (response.choiceKey) {
         setChoice(response.choiceKey, response.choiceValue);
         trackRecapEvent({
           type: 'CHOICE',
           text: `${response.choiceKey}: ${response.choiceValue}`,
-          scene: 'THE_CONFRONTATION',
+          scene: 'THE_BRIDGE',
         });
       }
       saveGame();
@@ -43,23 +39,24 @@ export default function TheConfrontation() {
           setIsTransitioning(false);
         }, 500);
       } else {
+        // Final scene — trigger ending
         setIsTransitioning(true);
         trackRecapEvent({
-          type: 'SCENE_END',
-          text: 'Mythili swallowed the diamonds. Running to the bridge.',
-          scene: 'THE_CONFRONTATION',
+          type: 'GAME_END',
+          text: 'Ram saved Mythili. The truth came out.',
+          scene: 'THE_BRIDGE',
         });
         setTimeout(() => {
-          transitionScene('THE_BRIDGE');
-        }, 1500);
+          triggerEnding();
+        }, 2500);
       }
     },
-    [addFact, updateMythiliSuspicion, setChoice, transitionScene, saveGame, trackRecapEvent]
+    [addFact, setChoice, triggerEnding, saveGame, trackRecapEvent]
   );
 
   if (!currentDialogue) return null;
 
-  const isMythiliScene = ['confrontation_4', 'confrontation_5', 'confrontation_6'].includes(currentDialogueId);
+  const isReconciliation = ['bridge_4', 'bridge_5'].includes(currentDialogueId);
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
@@ -68,9 +65,11 @@ export default function TheConfrontation() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Confrontation</h2>
+        <h2 className={`font-bold text-2xl ${isReconciliation ? 'text-kollywood-teal' : 'text-red-400'}`}>
+          {isReconciliation ? 'Reconciliation' : 'The Bridge'}
+        </h2>
         <p className="text-white/50 text-sm mt-1">
-          {isMythiliScene ? "Smuggler's Hideout — Mythili Arrives" : "Smuggler's Hideout — Captive"}
+          {isReconciliation ? 'The truth comes out.' : 'The bridge — everything ends here.'}
         </p>
       </motion.div>
 
@@ -88,7 +87,7 @@ export default function TheConfrontation() {
               speaker={currentDialogue.speaker}
               text={currentDialogue.text}
               speakerColor={currentDialogue.speakerColor}
-              isPressured={true}
+              isPressured={!isReconciliation}
             />
             <ResponseOptions
               options={currentDialogue.responses.map((r) => ({
@@ -112,13 +111,21 @@ export default function TheConfrontation() {
           className="text-center py-8"
         >
           <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 0.5, repeat: Infinity }}
-            className="text-red-500 text-xl font-bold"
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 1 }}
+            className="text-kollywood-teal text-2xl font-bold"
           >
-            RUN.
+            Together again.
           </motion.div>
-          <p className="text-white/50 text-sm mt-2">Mythili is on the bridge.</p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="text-white/50 text-sm mt-3"
+          >
+            The whole truth is finally out.
+          </motion.p>
         </motion.div>
       )}
     </div>

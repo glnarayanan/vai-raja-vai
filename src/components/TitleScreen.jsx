@@ -88,7 +88,7 @@ export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 2.0, duration: 0.8 }}
         >
-          Five friends. Five wives. One diamond. Zero working stories.
+          One husband. One wife. One truth. And a web of misunderstandings.
         </motion.p>
 
         {/* Buttons */}

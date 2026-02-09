@@ -1,58 +1,25 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
-import PanicNotification from '../ui/PanicNotification';
 import PanicMeter from '../ui/PanicMeter';
-import { UGADI_PARTY_DIALOGUES } from '../../data/dialogueContent';
+import { THE_AFTERMATH_DIALOGUES } from '../../data/dialogueContent';
 
-export default function UgadiParty() {
-  const [currentDialogueId, setCurrentDialogueId] = useState('party_1');
+export default function TheAftermath() {
+  const [currentDialogueId, setCurrentDialogueId] = useState('aftermath_1');
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const leakCheckDone = useRef(new Set());
 
   const addFact = useGameStore((s) => s.addFact);
   const updateMythiliSuspicion = useGameStore((s) => s.updateMythiliSuspicion);
   const setChoice = useGameStore((s) => s.setChoice);
-  const rollFriendLeak = useGameStore((s) => s.rollFriendLeak);
-  const triggerPanicAlert = useGameStore((s) => s.triggerPanicAlert);
-  const acquireEvidence = useGameStore((s) => s.acquireEvidence);
+  const calmFriend = useGameStore((s) => s.calmFriend);
   const transitionScene = useGameStore((s) => s.transitionScene);
   const saveGame = useGameStore((s) => s.saveGame);
   const trackRecapEvent = useGameStore((s) => s.trackRecapEvent);
   const friends = useGameStore((s) => s.friends);
-  const currentPanicAlert = useGameStore((s) => s.currentPanicAlert);
 
-  const currentDialogue = UGADI_PARTY_DIALOGUES.find((d) => d.id === currentDialogueId);
-
-  // Check for friend leaks at key transition points (between dialogue nodes)
-  useEffect(() => {
-    const leakNodes = ['party_2', 'party_4'];
-    if (!leakNodes.includes(currentDialogueId)) return;
-    if (leakCheckDone.current.has(currentDialogueId)) return;
-    leakCheckDone.current.add(currentDialogueId);
-
-    // Pick a random friend to check for leak
-    const shuffled = [...friends].sort(() => Math.random() - 0.5);
-    for (const friend of shuffled) {
-      const result = rollFriendLeak(friend.id);
-      if (result.leaked) {
-        triggerPanicAlert({
-          friendId: friend.id,
-          friendName: friend.name,
-          leakText: result.leakText,
-        });
-        updateMythiliSuspicion(8);
-        trackRecapEvent({
-          type: 'FRIEND_LEAK',
-          text: `${friend.name} cracked at the party: "${result.leakText}"`,
-          scene: 'UGADI_PARTY',
-        });
-        break;
-      }
-    }
-  }, [currentDialogueId, friends, rollFriendLeak, triggerPanicAlert, updateMythiliSuspicion, trackRecapEvent]);
+  const currentDialogue = THE_AFTERMATH_DIALOGUES.find((d) => d.id === currentDialogueId);
 
   const handleResponse = useCallback(
     (response) => {
@@ -67,18 +34,25 @@ export default function UgadiParty() {
         trackRecapEvent({
           type: 'CHOICE',
           text: `${response.choiceKey}: ${response.choiceValue}`,
-          scene: 'UGADI_PARTY',
+          scene: 'THE_AFTERMATH',
         });
       }
-      // Maggie reveals diamonds at party_6 — player now knows about the diamond cache
-      if (currentDialogueId === 'party_6') {
-        acquireEvidence('item_diamond');
-        trackRecapEvent({
-          type: 'DIAMOND_REVEAL',
-          text: 'Maggie revealed the diamonds hidden in her phone case',
-          scene: 'UGADI_PARTY',
-        });
+
+      // Calm friends based on dialogue node
+      if (currentDialogueId === 'aftermath_2') {
+        const method = response.id.includes('reassure') ? 'reassure' : 'threaten';
+        calmFriend('friend_ayyappan', method);
       }
+      if (currentDialogueId === 'aftermath_3') {
+        calmFriend('friend_vedham', 'reassure');
+      }
+      if (currentDialogueId === 'aftermath_4') {
+        calmFriend('friend_hegde', 'reassure');
+      }
+      if (currentDialogueId === 'aftermath_5') {
+        calmFriend('friend_reddy', 'reassure');
+      }
+
       saveGame();
 
       if (response.nextDialogue) {
@@ -91,43 +65,34 @@ export default function UgadiParty() {
         setIsTransitioning(true);
         trackRecapEvent({
           type: 'SCENE_END',
-          text: 'Kidnapped by the smuggler. Mythili saw everything.',
-          scene: 'UGADI_PARTY',
+          text: 'Ugadi party awaits.',
+          scene: 'THE_AFTERMATH',
         });
         setTimeout(() => {
-          transitionScene('THE_CONFRONTATION');
+          transitionScene('UGADI_PARTY');
         }, 1500);
       }
     },
-    [addFact, updateMythiliSuspicion, setChoice, acquireEvidence, transitionScene, saveGame, trackRecapEvent, currentDialogueId]
+    [addFact, updateMythiliSuspicion, setChoice, calmFriend, transitionScene, saveGame, trackRecapEvent, currentDialogueId]
   );
 
   if (!currentDialogue) return null;
 
-  const isMaggieScene = ['party_5', 'party_6', 'party_7', 'party_8'].includes(currentDialogueId);
+  const isFriendCalming = ['aftermath_2', 'aftermath_3', 'aftermath_4', 'aftermath_5'].includes(currentDialogueId);
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
-      {/* Panic alert overlay */}
-      <AnimatePresence>
-        {currentPanicAlert && (
-          <PanicNotification alert={currentPanicAlert} />
-        )}
-      </AnimatePresence>
-
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Ugadi Party</h2>
-        <p className="text-white/50 text-sm mt-1">
-          {isMaggieScene ? "Reddy's House — Everything Falls Apart" : "Reddy's House — Ugadi Celebration"}
-        </p>
+        <h2 className="text-kollywood-saffron font-bold text-2xl">The Aftermath</h2>
+        <p className="text-white/50 text-sm mt-1">Chennai — Three Days Later</p>
       </motion.div>
 
-      {/* Panic meter visible during party */}
-      {!isMaggieScene && (
+      {/* Show panic meter during friend-calming dialogues */}
+      {isFriendCalming && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -150,7 +115,6 @@ export default function UgadiParty() {
               speaker={currentDialogue.speaker}
               text={currentDialogue.text}
               speakerColor={currentDialogue.speakerColor}
-              isAmbush={isMaggieScene}
             />
             <ResponseOptions
               options={currentDialogue.responses.map((r) => ({
@@ -176,11 +140,11 @@ export default function UgadiParty() {
           <motion.div
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="text-red-400 text-lg font-semibold"
+            className="text-amber-400 text-lg font-semibold"
           >
-            Dragged away at gunpoint...
+            The Ugadi party approaches...
           </motion.div>
-          <p className="text-white/50 text-sm mt-2">The smuggler's hideout awaits.</p>
+          <p className="text-white/50 text-sm mt-2">One chance to fix everything.</p>
         </motion.div>
       )}
     </div>

@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../../store/gameStore';
 import DialogueBox from '../ui/DialogueBox';
 import ResponseOptions from '../ui/ResponseOptions';
-import { THE_CONFRONTATION_DIALOGUES } from '../../data/dialogueContent';
+import { THE_MISUNDERSTANDING_DIALOGUES } from '../../data/dialogueContent';
 
-export default function TheConfrontation() {
-  const [currentDialogueId, setCurrentDialogueId] = useState('confrontation_1');
+export default function TheMisunderstanding() {
+  const [currentDialogueId, setCurrentDialogueId] = useState('misunderstanding_1');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const addFact = useGameStore((s) => s.addFact);
@@ -16,7 +16,7 @@ export default function TheConfrontation() {
   const saveGame = useGameStore((s) => s.saveGame);
   const trackRecapEvent = useGameStore((s) => s.trackRecapEvent);
 
-  const currentDialogue = THE_CONFRONTATION_DIALOGUES.find((d) => d.id === currentDialogueId);
+  const currentDialogue = THE_MISUNDERSTANDING_DIALOGUES.find((d) => d.id === currentDialogueId);
 
   const handleResponse = useCallback(
     (response) => {
@@ -31,7 +31,7 @@ export default function TheConfrontation() {
         trackRecapEvent({
           type: 'CHOICE',
           text: `${response.choiceKey}: ${response.choiceValue}`,
-          scene: 'THE_CONFRONTATION',
+          scene: 'THE_MISUNDERSTANDING',
         });
       }
       saveGame();
@@ -46,11 +46,11 @@ export default function TheConfrontation() {
         setIsTransitioning(true);
         trackRecapEvent({
           type: 'SCENE_END',
-          text: 'Mythili swallowed the diamonds. Running to the bridge.',
-          scene: 'THE_CONFRONTATION',
+          text: 'Mythili left. Ram is alone.',
+          scene: 'THE_MISUNDERSTANDING',
         });
         setTimeout(() => {
-          transitionScene('THE_BRIDGE');
+          transitionScene('BANGALORE_BIRTHDAY');
         }, 1500);
       }
     },
@@ -59,7 +59,12 @@ export default function TheConfrontation() {
 
   if (!currentDialogue) return null;
 
-  const isMythiliScene = ['confrontation_4', 'confrontation_5', 'confrontation_6'].includes(currentDialogueId);
+  const isNirmalaSection = currentDialogueId.includes('1') || currentDialogueId.includes('2');
+  const subtitle = isNirmalaSection
+    ? 'Building Ledge — Evening'
+    : currentDialogueId.includes('5')
+      ? 'Late Night — Wrong Apartment'
+      : "Ram & Mythili's Home";
 
   return (
     <div className="flex flex-col gap-4 p-4 max-w-2xl mx-auto">
@@ -68,10 +73,8 @@ export default function TheConfrontation() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-4"
       >
-        <h2 className="text-kollywood-saffron font-bold text-2xl">The Confrontation</h2>
-        <p className="text-white/50 text-sm mt-1">
-          {isMythiliScene ? "Smuggler's Hideout — Mythili Arrives" : "Smuggler's Hideout — Captive"}
-        </p>
+        <h2 className="text-kollywood-saffron font-bold text-2xl">The Misunderstanding</h2>
+        <p className="text-white/50 text-sm mt-1">{subtitle}</p>
       </motion.div>
 
       <AnimatePresence mode="wait">
@@ -88,7 +91,6 @@ export default function TheConfrontation() {
               speaker={currentDialogue.speaker}
               text={currentDialogue.text}
               speakerColor={currentDialogue.speakerColor}
-              isPressured={true}
             />
             <ResponseOptions
               options={currentDialogue.responses.map((r) => ({
@@ -112,13 +114,13 @@ export default function TheConfrontation() {
           className="text-center py-8"
         >
           <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 0.5, repeat: Infinity }}
-            className="text-red-500 text-xl font-bold"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="text-kollywood-magenta text-lg font-semibold"
           >
-            RUN.
+            Mythili is gone.
           </motion.div>
-          <p className="text-white/50 text-sm mt-2">Mythili is on the bridge.</p>
+          <p className="text-white/50 text-sm mt-2">The friends arrive to pick up the pieces.</p>
         </motion.div>
       )}
     </div>

@@ -5,8 +5,7 @@ import InventoryBar from './InventoryBar';
 export default function GameLayout({
   children,
   sceneTitle,
-  globalSuspicion = 0,
-  wives = [],
+  mythiliSuspicion = 0,
   friends = [],
   inventory = [],
   onUseItem,
@@ -14,10 +13,10 @@ export default function GameLayout({
   return (
     <div className="relative flex min-h-screen flex-col bg-kollywood-midnight">
       {/* Sticky header */}
-      <Header sceneTitle={sceneTitle} globalSuspicion={globalSuspicion} />
+      <Header sceneTitle={sceneTitle} mythiliSuspicion={mythiliSuspicion} />
 
       {/* NPC status hub */}
-      <SocialHub wives={wives} friends={friends} />
+      <SocialHub mythiliSuspicion={mythiliSuspicion} friends={friends} />
 
       {/* Main content area */}
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 pb-24">
