@@ -165,6 +165,26 @@ const createInitialState = () => ({
   // Diamond status
   diamondDiscovered: false,
   evidenceTossFailed: false,
+
+  // Chaos systems (Phase 4+)
+  chaosEventsTriggered: [],     // {eventId, scene, timestamp}
+  ambushHistory: [],             // {wifeId, scene, dialogueId, timestamp}
+  collisionReveals: [],          // {factId1, factId2, wifeId, resolved}
+  friendBlurtHistory: [],        // {friendId, wifeId, blurt, timestamp}
+  friendPositions: {},           // {friend_ayyappan: 'wife_ammini', ...}
+  friendInterceptedCount: 0,
+  wifePatience: {
+    wife_mythili: 3,
+    wife_ammini: 3,
+    wife_chamundi: 3,
+    wife_janaki: 3,
+    wife_mrs_reddy: 3,
+  },
+  recapEvents: [],               // {type, text, timestamp, scene}
+  gameStartTime: null,
+  currentAmbush: null,
+  currentChaosEvent: null,
+  friendAlert: null,
 });
 
 // ---------------------------------------------------------------------------
@@ -519,6 +539,7 @@ const useGameStore = create(
           ...createInitialState(),
           gameStarted: true,
           currentScene: "THE_RETURN",
+          gameStartTime: Date.now(),
         });
       },
 
@@ -526,11 +547,13 @@ const useGameStore = create(
       // 22. determineEnding()
       // =====================================================================
       determineEnding: () => {
-        const { wives, diamondDiscovered } = get();
+        const { wives, diamondDiscovered, collisionReveals, friendBlurtHistory } = get();
 
         const globalSuspicion = get().getGlobalSuspicion();
         const maxSuspicion = Math.max(...wives.map((w) => w.suspicion));
         const wivesAbove50 = wives.filter((w) => w.suspicion > 50).length;
+        const blurtsReachedWives = friendBlurtHistory.length;
+        const reveals = collisionReveals.length;
 
         // INTERNATIONAL_FUGITIVE (~5%): diamond discovered
         if (diamondDiscovered) {
@@ -538,7 +561,7 @@ const useGameStore = create(
         }
 
         // CLEAN_SWEEP (~10%): very hard to achieve
-        if (globalSuspicion < 10 && maxSuspicion < 20) {
+        if (globalSuspicion < 10 && maxSuspicion < 20 && reveals === 0 && blurtsReachedWives === 0) {
           return "CLEAN_SWEEP";
         }
 
@@ -548,12 +571,59 @@ const useGameStore = create(
         }
 
         // SURVIVED_SOMEHOW (~25%): scraped by
-        if (globalSuspicion < 40 && wivesAbove50 <= 2) {
+        if (globalSuspicion < 40 && wivesAbove50 <= 2 && reveals < 3) {
           return "SURVIVED_SOMEHOW";
         }
 
         // BUSTED (~40%): default fallback
         return "BUSTED";
+      },
+
+      // =====================================================================
+      // Chaos system stubs (implemented in Phases 5-9)
+      // =====================================================================
+
+      triggerWifeAmbush: (wifeId, sceneId) => {
+        // Phase 6: Find cross-wife contradictions, build ambush dialogue
+      },
+
+      triggerChaosEvent: (eventId) => {
+        // Phase 7: Apply chaos event effects
+      },
+
+      updateFriendAutonomous: () => {
+        // Phase 5: Pick random friend → random wife → set position + alert
+      },
+
+      resolveAmbush: (responseId) => {
+        // Phase 6: Hidden roll vs wife intelligence, cascade on fail
+      },
+
+      trackRecapEvent: (event) => {
+        set((state) => ({
+          recapEvents: [...state.recapEvents, { ...event, timestamp: Date.now() }],
+        }));
+      },
+
+      getDisasterRecap: () => {
+        // Phase 9: Build recap from collisionReveals, blurtHistory, etc.
+        const state = get();
+        return {
+          collisionReveals: state.collisionReveals,
+          friendBlurtHistory: state.friendBlurtHistory,
+          ambushHistory: state.ambushHistory,
+          wives: state.wives,
+          duration: state.gameStartTime ? Date.now() - state.gameStartTime : 0,
+          recapEvents: state.recapEvents,
+        };
+      },
+
+      drainPatience: (wifeId) => {
+        // Phase 6: Decrement patience, storm off if 0
+      },
+
+      interceptFriend: (friendId) => {
+        // Phase 5: Clear alert, +5 suspicion, increment intercepted count
       },
 
       // =====================================================================
@@ -595,6 +665,18 @@ const useGameStore = create(
             alcoholTimerActive: state.alcoholTimerActive,
             diamondDiscovered: state.diamondDiscovered,
             evidenceTossFailed: state.evidenceTossFailed,
+            chaosEventsTriggered: state.chaosEventsTriggered,
+            ambushHistory: state.ambushHistory,
+            collisionReveals: state.collisionReveals,
+            friendBlurtHistory: state.friendBlurtHistory,
+            friendPositions: state.friendPositions,
+            friendInterceptedCount: state.friendInterceptedCount,
+            wifePatience: state.wifePatience,
+            recapEvents: state.recapEvents,
+            gameStartTime: state.gameStartTime,
+            currentAmbush: state.currentAmbush,
+            currentChaosEvent: state.currentChaosEvent,
+            friendAlert: state.friendAlert,
           };
 
           localStorage.setItem(MANUAL_SAVE_KEY, JSON.stringify(serializable));
@@ -670,6 +752,18 @@ const useGameStore = create(
         alcoholTimerActive: state.alcoholTimerActive,
         diamondDiscovered: state.diamondDiscovered,
         evidenceTossFailed: state.evidenceTossFailed,
+        chaosEventsTriggered: state.chaosEventsTriggered,
+        ambushHistory: state.ambushHistory,
+        collisionReveals: state.collisionReveals,
+        friendBlurtHistory: state.friendBlurtHistory,
+        friendPositions: state.friendPositions,
+        friendInterceptedCount: state.friendInterceptedCount,
+        wifePatience: state.wifePatience,
+        recapEvents: state.recapEvents,
+        gameStartTime: state.gameStartTime,
+        currentAmbush: state.currentAmbush,
+        currentChaosEvent: state.currentChaosEvent,
+        friendAlert: state.friendAlert,
       }),
       version: 1,
       migrate: (persistedState, version) => {
