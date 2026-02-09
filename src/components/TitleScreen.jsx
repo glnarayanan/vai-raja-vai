@@ -3,16 +3,14 @@ import { motion } from 'framer-motion';
 const titleLetters = 'VAI RAJA VAI'.split('');
 
 const letterVariants = {
-  hidden: { opacity: 0, y: 60, rotateX: -90 },
+  hidden: { opacity: 0, y: 16 },
   visible: (i) => ({
     opacity: 1,
     y: 0,
-    rotateX: 0,
     transition: {
-      delay: 0.6 + i * 0.06,
-      type: 'spring',
-      stiffness: 120,
-      damping: 12,
+      delay: 0.6 + i * 0.04,
+      duration: 0.4,
+      ease: 'easeOut',
     },
   }),
 };
@@ -22,34 +20,13 @@ const buttonVariants = {
   visible: (delay) => ({
     opacity: 1,
     y: 0,
-    transition: { delay, type: 'spring', stiffness: 100, damping: 14 },
+    transition: { delay, duration: 0.5, ease: 'easeOut' },
   }),
 };
 
 export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-kollywood-midnight">
-      {/* Pulsing background gradient */}
-      <motion.div
-        className="pointer-events-none absolute inset-0"
-        animate={{
-          background: [
-            'radial-gradient(ellipse at 50% 50%, rgba(217,70,239,0.08) 0%, transparent 70%)',
-            'radial-gradient(ellipse at 30% 60%, rgba(245,158,11,0.1) 0%, transparent 70%)',
-            'radial-gradient(ellipse at 70% 40%, rgba(20,184,166,0.08) 0%, transparent 70%)',
-            'radial-gradient(ellipse at 50% 50%, rgba(217,70,239,0.08) 0%, transparent 70%)',
-          ],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-
-      {/* Film grain overlay */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-paper">
       <div className="relative z-10 flex flex-col items-center px-6 text-center">
         {/* Title */}
         <div className="mb-4 flex flex-wrap justify-center">
@@ -60,9 +37,8 @@ export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
               variants={letterVariants}
               initial="hidden"
               animate="visible"
-              className="inline-block text-6xl font-bold text-kollywood-saffron sm:text-7xl md:text-8xl"
+              className="inline-block text-6xl font-bold tracking-tight text-saffron sm:text-7xl md:text-8xl"
               style={{
-                textShadow: '0 0 30px rgba(245,158,11,0.4), 0 0 60px rgba(245,158,11,0.15)',
                 marginRight: letter === ' ' ? '0.4em' : '0.02em',
               }}
             >
@@ -73,7 +49,7 @@ export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
 
         {/* Subtitle */}
         <motion.p
-          className="mb-3 text-xl font-medium tracking-wide text-kollywood-teal sm:text-2xl"
+          className="mb-3 text-xl font-medium tracking-wide text-calm sm:text-2xl"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.6, duration: 0.8 }}
@@ -83,7 +59,7 @@ export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
 
         {/* Tagline */}
         <motion.p
-          className="mb-12 max-w-md text-base text-white/50 italic"
+          className="mb-12 max-w-md text-base text-ink-light italic"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.0, duration: 0.8 }}
@@ -98,10 +74,10 @@ export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
             variants={buttonVariants}
             initial="hidden"
             animate="visible"
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={onNewGame}
-            className="relative cursor-pointer rounded-lg bg-gradient-to-r from-kollywood-lime to-emerald-400 px-10 py-3.5 text-lg font-bold text-kollywood-deep shadow-lg shadow-kollywood-lime/20 transition-shadow duration-300 hover:shadow-xl hover:shadow-kollywood-lime/30"
+            className="cursor-pointer rounded-lg bg-saffron px-12 py-4 text-lg font-semibold text-paper shadow-md hover:shadow-lg transition-shadow duration-300"
           >
             New Game
           </motion.button>
@@ -112,23 +88,25 @@ export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
               variants={buttonVariants}
               initial="hidden"
               animate="visible"
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               onClick={onContinue}
-              className="cursor-pointer rounded-lg border border-white/20 bg-white/5 px-10 py-3 text-lg font-semibold text-white/70 backdrop-blur-sm transition-colors duration-300 hover:border-white/40 hover:text-white/90"
+              className="cursor-pointer rounded-lg border border-ink-faint bg-surface px-10 py-3 text-lg font-semibold text-ink-light transition-colors duration-300 hover:bg-ink-faint/10"
             >
               Continue
             </motion.button>
           )}
         </div>
 
-        {/* Bottom decorative line */}
-        <motion.div
-          className="mt-16 h-px w-48 bg-gradient-to-r from-transparent via-kollywood-saffron/40 to-transparent"
-          initial={{ scaleX: 0, opacity: 0 }}
-          animate={{ scaleX: 1, opacity: 1 }}
+        {/* Typographic ornament */}
+        <motion.p
+          className="mt-16 text-ink-faint"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 3.0, duration: 1.2 }}
-        />
+        >
+          ---
+        </motion.p>
       </div>
     </div>
   );
