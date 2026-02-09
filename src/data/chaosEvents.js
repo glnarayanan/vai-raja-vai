@@ -60,6 +60,20 @@ export const CHAOS_EVENTS = {
     scenes: ['RIVERBED_FINALE'],
     effect: { allWives: true, suspicionDelta: 10, diamondRisk: true },
   },
+  AYYAPPAN_CALLS: {
+    id: 'AYYAPPAN_CALLS',
+    title: 'Incoming Call!',
+    description: "Ayyappan calls mid-conversation. Mythili overhears him say, 'Did you tell her about the hotel yet?'",
+    scenes: ['THE_RETURN'],
+    effect: { targetWife: 'wife_mythili', suspicionDelta: 6 },
+  },
+  SUITCASE_CLUE: {
+    id: 'SUITCASE_CLUE',
+    title: 'Suspicious Luggage!',
+    description: "Mythili notices Ram's suitcase is much heavier than when he left. Something is hidden inside.",
+    scenes: ['THE_RETURN'],
+    effect: { targetWife: 'wife_mythili', suspicionDelta: 8 },
+  },
 };
 
 /**
