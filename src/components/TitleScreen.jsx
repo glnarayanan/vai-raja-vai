@@ -130,6 +130,7 @@ export default function TitleScreen({ onNewGame, onContinue, hasSavedGame }) {
           &#167;
         </motion.p>
       </div>
+
     </div>
   );
 }

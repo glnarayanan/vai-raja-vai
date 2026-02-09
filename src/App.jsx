@@ -68,37 +68,51 @@ export default function App() {
       name: item.name,
     }));
 
-  // Title Screen
+  let screen;
+
   if (currentScene === 'TITLE') {
-    return (
+    screen = (
       <TitleScreen
         onNewGame={handleNewGame}
         onContinue={handleContinue}
         hasSavedGame={hasSaved}
       />
     );
-  }
-
-  // Ending Screen
-  if (currentScene === 'ENDING' && endingQuality) {
-    return (
+  } else if (currentScene === 'ENDING' && endingQuality) {
+    screen = (
       <EndingScreen
         endingQuality={endingQuality}
         onPlayAgain={handlePlayAgain}
       />
     );
+  } else {
+    screen = (
+      <GameLayout
+        sceneTitle={SCENE_TITLES[currentScene] || currentScene}
+        mythiliSuspicion={mythiliSuspicion}
+        friends={friends}
+        inventory={mappedInventory}
+        onUseItem={handleUseItem}
+      >
+        <SceneManager />
+      </GameLayout>
+    );
   }
 
-  // Game Scenes
   return (
-    <GameLayout
-      sceneTitle={SCENE_TITLES[currentScene] || currentScene}
-      mythiliSuspicion={mythiliSuspicion}
-      friends={friends}
-      inventory={mappedInventory}
-      onUseItem={handleUseItem}
-    >
-      <SceneManager />
-    </GameLayout>
+    <>
+      {screen}
+      <footer className="fixed inset-x-0 bottom-0 z-30 py-2 text-center font-body text-xs leading-relaxed text-ink-faint">
+        <p>
+          Created with ❤️, nostalgia, and 🤖 by Lakshmi Narayanan (LN)
+          {' — '}
+          <a href="https://x.com/_glnarayanan" target="_blank" rel="noopener noreferrer" className="underline decoration-ink-faint/40 underline-offset-2 transition-colors duration-200 hover:text-ink-light">X</a>
+          {' · '}
+          <a href="https://linkedin.com/in/glnarayanan" target="_blank" rel="noopener noreferrer" className="underline decoration-ink-faint/40 underline-offset-2 transition-colors duration-200 hover:text-ink-light">LinkedIn</a>
+          {' · '}
+          <a href="https://gln.me" target="_blank" rel="noopener noreferrer" className="underline decoration-ink-faint/40 underline-offset-2 transition-colors duration-200 hover:text-ink-light">Website</a>
+        </p>
+      </footer>
+    </>
   );
 }
