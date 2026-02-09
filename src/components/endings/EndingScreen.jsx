@@ -42,10 +42,10 @@ export default function EndingScreen({ endingQuality, onPlayAgain }) {
             {/* Recap toggle button */}
             <motion.button
               onClick={() => setShowRecap(true)}
-              className="fixed bottom-6 right-6 z-50 cursor-pointer rounded-full border border-ink-faint bg-surface px-5 py-2.5 text-sm font-medium text-ink shadow-md transition-colors duration-200 hover:bg-ink-faint/10"
+              className="fixed bottom-6 right-6 z-50 cursor-pointer rounded-full border border-ink-faint/40 bg-surface px-5 py-2.5 font-ui text-sm font-medium text-ink shadow-sm transition-colors duration-200 hover:border-ink-faint hover:bg-ink-faint/10 active:bg-ink-faint/20"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 5.0 }}
+              transition={{ delay: 7.0 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >

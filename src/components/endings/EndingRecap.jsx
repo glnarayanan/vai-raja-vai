@@ -62,8 +62,8 @@ export default function EndingRecap({ onBack, onPlayAgain }) {
           animate={{ opacity: 1 }}
           className="mb-8 text-center"
         >
-          <h1 className="mb-2 text-3xl font-bold text-saffron">Your Journey</h1>
-          <p className="text-ink-light">Every choice, every consequence.</p>
+          <h1 className="mb-2 font-display text-3xl font-semibold tracking-wide text-saffron">Your Journey</h1>
+          <p className="font-display italic text-ink-light">Every choice, every consequence.</p>
         </motion.div>
 
         {/* Stats */}
@@ -73,17 +73,17 @@ export default function EndingRecap({ onBack, onPlayAgain }) {
           transition={{ delay: 0.2 }}
           className="mb-6 grid grid-cols-3 gap-3"
         >
-          <div className="rounded-xl border border-ink-faint/20 bg-surface p-4 text-center">
-            <p className="text-2xl font-bold text-calm">{recap.mythiliSuspicion}%</p>
-            <p className="text-[10px] uppercase tracking-widest text-ink-light">Suspicion</p>
+          <div className="rounded-lg border border-ink-faint/20 bg-surface p-4 text-center">
+            <p className="font-display text-2xl font-semibold tabular-nums text-calm">{recap.mythiliSuspicion}%</p>
+            <p className="font-ui text-[10px] uppercase tracking-widest text-ink-light">Suspicion</p>
           </div>
-          <div className="rounded-xl border border-ink-faint/20 bg-surface p-4 text-center">
-            <p className="text-2xl font-bold text-ink">{mins}:{secs.toString().padStart(2, '0')}</p>
-            <p className="text-[10px] uppercase tracking-widest text-ink-light">Time</p>
+          <div className="rounded-lg border border-ink-faint/20 bg-surface p-4 text-center">
+            <p className="font-display text-2xl font-semibold tabular-nums text-ink">{mins}:{secs.toString().padStart(2, '0')}</p>
+            <p className="font-ui text-[10px] uppercase tracking-widest text-ink-light">Time</p>
           </div>
-          <div className="rounded-xl border border-ink-faint/20 bg-surface p-4 text-center">
-            <p className="text-2xl font-bold text-saffron">{recap.factsTotal}</p>
-            <p className="text-[10px] uppercase tracking-widest text-ink-light">Facts</p>
+          <div className="rounded-lg border border-ink-faint/20 bg-surface p-4 text-center">
+            <p className="font-display text-2xl font-semibold tabular-nums text-saffron">{recap.factsTotal}</p>
+            <p className="font-ui text-[10px] uppercase tracking-widest text-ink-light">Facts</p>
           </div>
         </motion.div>
 
@@ -92,14 +92,14 @@ export default function EndingRecap({ onBack, onPlayAgain }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="mb-6 rounded-xl border border-ink-faint/20 bg-surface p-5"
+          className="mb-6 rounded-lg border border-ink-faint/20 bg-surface p-5"
         >
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-light">
+          <p className="mb-3 font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-light">
             Choices Made
           </p>
           <div className="flex flex-col gap-2">
             {choices.map((c, i) => (
-              <div key={i} className="flex items-center justify-between text-sm">
+              <div key={i} className="flex items-center justify-between font-ui text-sm">
                 <span className="text-ink-light">{c.label}</span>
                 <span className="font-medium text-ink">{c.value}</span>
               </div>
@@ -112,20 +112,20 @@ export default function EndingRecap({ onBack, onPlayAgain }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mb-6 rounded-xl border border-ink-faint/20 bg-surface p-5"
+          className="mb-6 rounded-lg border border-ink-faint/20 bg-surface p-5"
         >
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-light">
+          <p className="mb-3 font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-light">
             Friend Status
           </p>
           <div className="flex flex-col gap-2">
             {recap.friends.map((f, i) => (
-              <div key={i} className="flex items-center justify-between text-sm">
+              <div key={i} className="flex items-center justify-between font-ui text-sm">
                 <span className="text-ink-light">{f.name}</span>
                 <div className="flex items-center gap-2">
-                  <span className={`font-mono font-bold ${f.panic > 60 ? 'text-danger' : f.panic > 30 ? 'text-saffron' : 'text-calm'}`}>
+                  <span className={`font-bold tabular-nums ${f.panic > 60 ? 'text-danger' : f.panic > 30 ? 'text-saffron' : 'text-calm'}`}>
                     {f.panic}% panic
                   </span>
-                  {f.calmed && <span className="text-[10px] text-calm">CALMED</span>}
+                  {f.calmed && <span className="text-[10px] font-semibold text-calm">CALMED</span>}
                 </div>
               </div>
             ))}
@@ -138,9 +138,9 @@ export default function EndingRecap({ onBack, onPlayAgain }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="mb-6 rounded-xl border border-danger/20 bg-danger/5 p-5"
+            className="mb-6 rounded-lg border-l-2 border-danger/40 bg-danger/5 p-5"
           >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-danger/60">
+            <p className="mb-3 font-ui text-[10px] font-semibold uppercase tracking-widest text-danger">
               Friend Leaks
             </p>
             {leaks.map((leak, i) => (
@@ -156,9 +156,9 @@ export default function EndingRecap({ onBack, onPlayAgain }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="mb-8 rounded-xl border border-ink-faint/20 bg-surface p-4"
+          className="mb-8 rounded-lg border border-ink-faint/20 bg-surface p-4"
         >
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-ink-light">
+          <p className="mb-2 font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-light">
             Share
           </p>
           <p className="text-sm leading-relaxed text-ink-light">{shareText}</p>
@@ -173,13 +173,13 @@ export default function EndingRecap({ onBack, onPlayAgain }) {
         >
           <button
             onClick={onBack}
-            className="cursor-pointer rounded-lg border border-ink-faint bg-surface px-6 py-2.5 text-sm font-medium text-ink-light transition-colors duration-200 hover:bg-ink-faint/10"
+            className="cursor-pointer border-b border-ink-faint bg-transparent px-6 py-2.5 font-ui text-sm font-medium tracking-wide text-ink-light transition-colors duration-200 hover:text-ink hover:border-ink"
           >
             Back
           </button>
           <button
             onClick={onPlayAgain}
-            className="cursor-pointer rounded-lg bg-saffron px-8 py-2.5 text-sm font-semibold text-paper shadow-md"
+            className="cursor-pointer rounded bg-saffron px-8 py-3 font-ui text-sm font-semibold uppercase tracking-widest text-paper transition-opacity duration-200 hover:opacity-90 active:opacity-80"
           >
             Play Again
           </button>

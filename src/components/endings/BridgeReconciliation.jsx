@@ -45,28 +45,44 @@ export default function BridgeReconciliation({ quality, onPlayAgain, stats }) {
   return (
     <div className={`min-h-screen bg-gradient-to-b ${config.bgGradient} px-6 py-12`}>
       <div className="mx-auto max-w-2xl">
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="mb-8 text-center"
-        >
-          <h1
-            className="mb-2 text-5xl font-bold sm:text-6xl"
+        {/* Title — cinematic reveal with dramatic pause */}
+        <div className="mb-8 text-center">
+          {/* Film title arrives first */}
+          <motion.p
+            className="mb-4 font-display text-lg italic text-ink-light"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1 }}
+          >
+            Vai Raja Vai
+          </motion.p>
+
+          {/* Thin rule builds anticipation */}
+          <motion.div
+            className="mx-auto mb-5 h-px w-16 bg-ink-faint/40"
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ delay: 1.5, duration: 0.6 }}
+          />
+
+          {/* Quality title reveals after a dramatic hold */}
+          <motion.h1
+            className="font-display text-5xl font-semibold tracking-wide sm:text-6xl"
             style={{ color: config.color }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.2, duration: 0.8 }}
           >
             {config.title}
-          </h1>
-          <p className="text-lg text-ink-light">Vai Raja Vai</p>
-        </motion.div>
+          </motion.h1>
+        </div>
 
         {/* Description */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 1 }}
-          className={`mb-8 rounded-2xl border ${config.borderColor} bg-surface p-6`}
+          transition={{ delay: 3.2, duration: 1 }}
+          className={`mb-8 rounded-lg border ${config.borderColor} bg-surface p-6`}
         >
           <p className="text-base leading-relaxed text-ink">
             {config.description}
@@ -77,12 +93,12 @@ export default function BridgeReconciliation({ quality, onPlayAgain, stats }) {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 2.5, duration: 0.8 }}
-          className="mb-6 rounded-2xl border border-danger/30 bg-danger/5 p-6"
+          transition={{ delay: 4.5, duration: 0.8 }}
+          className="mb-6 rounded-lg border-l-2 border-danger/40 bg-danger/5 p-6"
         >
           <div className="mb-2 flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-danger" />
-            <span className="text-sm font-bold uppercase tracking-wide text-danger">
+            <span className="font-ui text-[10px] font-bold uppercase tracking-[0.15em] text-danger">
               Mythili
             </span>
           </div>
@@ -95,8 +111,8 @@ export default function BridgeReconciliation({ quality, onPlayAgain, stats }) {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 3.5, duration: 0.8 }}
-          className="mb-10 rounded-xl bg-surface p-5"
+          transition={{ delay: 5.5, duration: 0.8 }}
+          className="mb-10 rounded-lg bg-surface p-5"
         >
           <p className="text-sm leading-relaxed text-ink-light">
             {config.friendsLine}
@@ -108,20 +124,20 @@ export default function BridgeReconciliation({ quality, onPlayAgain, stats }) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 4.5 }}
-            className="mb-8 rounded-xl border border-ink-faint/20 bg-surface p-5"
+            transition={{ delay: 6.5 }}
+            className="mb-8 rounded-lg border border-ink-faint/20 bg-surface p-5"
           >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-light">
+            <p className="mb-3 font-ui text-[10px] font-semibold uppercase tracking-widest text-ink-light">
               Your Journey
             </p>
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="grid grid-cols-2 gap-3 font-ui text-sm">
               <div>
                 <span className="text-ink-light">Suspicion: </span>
-                <span className="font-bold" style={{ color: config.color }}>{stats.mythiliSuspicion}%</span>
+                <span className="font-bold tabular-nums" style={{ color: config.color }}>{stats.mythiliSuspicion}%</span>
               </div>
               <div>
                 <span className="text-ink-light">Facts told: </span>
-                <span className="font-bold text-ink">{stats.factsTotal}</span>
+                <span className="font-bold tabular-nums text-ink">{stats.factsTotal}</span>
               </div>
               <div>
                 <span className="text-ink-light">Quality: </span>
@@ -129,7 +145,7 @@ export default function BridgeReconciliation({ quality, onPlayAgain, stats }) {
               </div>
               <div>
                 <span className="text-ink-light">Time: </span>
-                <span className="font-bold text-ink">{Math.floor((stats.duration || 0) / 60000)}m</span>
+                <span className="font-bold tabular-nums text-ink">{Math.floor((stats.duration || 0) / 60000)}m</span>
               </div>
             </div>
           </motion.div>
@@ -139,12 +155,12 @@ export default function BridgeReconciliation({ quality, onPlayAgain, stats }) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 5 }}
+          transition={{ delay: 7 }}
           className="text-center"
         >
           <button
             onClick={onPlayAgain}
-            className="cursor-pointer rounded-lg bg-saffron px-10 py-3.5 text-lg font-semibold text-paper shadow-md transition-shadow duration-300 hover:shadow-lg"
+            className="cursor-pointer rounded bg-saffron px-10 py-3.5 font-ui text-sm font-semibold uppercase tracking-widest text-paper transition-opacity duration-200 hover:opacity-90 active:opacity-80"
           >
             Play Again
           </button>
