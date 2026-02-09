@@ -3,12 +3,16 @@
 @theme {
   --color-paper: #FAF6F1;
   --color-ink: #2C2418;
-  --color-ink-light: #6B5D4D;
-  --color-ink-faint: #B8AD9E;
+  --color-ink-light: #554838;
+  --color-ink-faint: #9A8E7F;
   --color-saffron: #D97706;
   --color-danger: #B91C1C;
   --color-calm: #0F766E;
   --color-surface: #F0EBE3;
+
+  --font-display: 'Cormorant Garamond', 'Georgia', serif;
+  --font-body: 'Source Serif 4', 'Georgia', serif;
+  --font-ui: system-ui, -apple-system, sans-serif;
 }
 
 body {
@@ -17,11 +21,38 @@ body {
   overflow-x: hidden;
   background-color: var(--color-paper);
   color: var(--color-ink);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
   min-height: 100vh;
+}
+
+/* Focus-visible for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-saffron);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default focus ring (focus-visible handles keyboard) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Prevent text selection on interactive elements */
+button, [role="button"] {
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
