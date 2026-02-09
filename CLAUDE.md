@@ -46,6 +46,51 @@ Deployment is automated via GitHub Actions (`.github/workflows/deploy.yml`).
 6. THE_CONFRONTATION — Smuggler hideout, Mythili arrives, pills
 7. THE_BRIDGE — Bridge rescue, truth revealed, reconciliation
 
+## Design Context
+
+### Users
+Both Tamil cinema fans (who recognize Panchatanthiram references) and casual interactive fiction players. Relaxed play sessions — narrative tension through writing and choice, not visual overload. Reward film knowledge without requiring it.
+
+### Brand Personality
+**Dramatic, Witty, Cinematic.** Thriller tension with sharp comedy — serious chaos caused by well-meaning idiots. The UI should feel authored and literary, like a well-designed book, not a software interface.
+
+### Aesthetic Direction
+- **Visual tone**: Warm editorial. Light paper/cream base. Think 80 Days meets a Penguin paperback — typographic confidence, generous whitespace, restrained color used with purpose.
+- **References**: 80 Days (Inkle) for literary elegance, warm palette, and stat-tracking UI. Reigns for minimal, decisive choice presentation with wit.
+- **Anti-references**: Cyberpunk/neon/glassmorphism, vibe-coded dark UIs, generic visual novel templates, anything with backdrop-blur + glow shadows.
+- **Theme**: Light mode. Warm, textured, editorial. Color is an accent, not the foundation.
+
+### Design Principles
+1. **Editorial, not engineered** — The game should feel like a beautifully typeset book, not an app. Typography and spacing do the heavy lifting.
+2. **Less is tension** — Restraint creates suspense. A single red number on a cream page is more alarming than a glowing neon meter.
+3. **Wit in the details** — Humor lives in microcopy, timing, and character voice — never in visual noise.
+4. **Choices feel weighty** — Generous space around options. Let the player sit with the decision. No visual clutter competing for attention.
+5. **Color is earned** — Mostly neutral palette. Color appears sparingly to signal state changes, danger, or key moments — making it meaningful when it does appear.
+
+### Color System (Target — warm editorial)
+| Token | Hex | Role |
+|-------|-----|------|
+| `paper` | `#FAF6F1` | Base background — warm off-white |
+| `ink` | `#2C2418` | Primary text — warm near-black |
+| `ink-light` | `#6B5D4D` | Secondary text, labels |
+| `ink-faint` | `#B8AD9E` | Tertiary text, borders |
+| `saffron` | `#D97706` | Primary accent — warmth, titles, key moments |
+| `danger` | `#B91C1C` | Suspicion spikes, critical states |
+| `calm` | `#0F766E` | Safe states, resolved tension |
+| `surface` | `#F0EBE3` | Cards, elevated surfaces |
+
+### Animation Language
+- Subtle and purposeful — no gratuitous motion
+- Typewriter effect for dialogue (keeps literary feel)
+- Simple fades and slides for transitions (no spring physics bouncing)
+- State changes through color shifts, not shaking/glowing
+- Respect `prefers-reduced-motion`
+
+### Accessibility
+- Standard best practices: good contrast on light backgrounds, keyboard nav, screen reader support
+- Light theme naturally provides better readability
+- No strict WCAG target but warm ink-on-paper palette should exceed AA contrast
+
 ## Key Docs
 | Doc | Path |
 |-----|------|
